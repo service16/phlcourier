@@ -1,43 +1,219 @@
-// Function to update package history and email the client instantly
-function updatePackageHistory(trackingNumber, newStatus, newLocation) {
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin Portal | PHL Express Global Logistics</title>
+<link rel="icon" type="image/png" href="logo.png">
+<script src="https://cdn.tailwindcss.com"></script>
+
+<!-- Firebase SDKs -->
+<script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
+
+<!-- EmailJS SDK -->
+<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+<script type="text/javascript">
+emailjs.init("fpalDA0DLYaRkVD0o");
+</script>
+
+<script>
+tailwind.config = {
+theme: {
+extend: {
+colors: {
+navy: { 900: '#0F172A', 950: '#090D16' },
+blue: { 600: '#2563EB', 700: '#1D4ED8' }
+}
+}
+}
+}
+</script>
+</head>
+<body class="bg-slate-950 font-sans text-slate-300 antialiased min-h-screen flex flex-col justify-between">
+
+<header class="bg-navy-950 border-b border-slate-800">
+<div class="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
+<div class="flex items-center space-x-3">
+<img src="logo.png" alt="PHL Express Logo" class="h-10 w-10 rounded-xl object-cover shadow-lg shadow-blue-600/30">
+<div class="flex flex-col">
+<span class="font-black tracking-tight text-lg text-white">PHL EXPRESS</span>
+<span class="text-[10px] tracking-widest text-rose-500 uppercase font-semibold">Admin Control Center</span>
+</div>
+</div>
+<a href="dashboard.html" class="text-xs text-slate-300 hover:text-white transition font-medium">Client Dashboard</a>
+</div>
+</header>
+
+<main class="flex-grow max-w-7xl w-full mx-auto px-6 py-8 space-y-8">
+<div class="text-space space-y-2">
+<h1 class="text-2xl font-black tracking-tight text-white">Manage All Shipments</h1>
+<p class="text-xs text-slate-400">View registered client packages and update transit milestones instantly.</p>
+</div>
+
+<!-- SHIPMENTS TABLE -->
+<div class="bg-navy-900 border border-slate-800 p-6 rounded-3xl shadow-xl space-y-6">
+<h2 class="text-lg font-black tracking-tight text-white border-b border-slate-800 pb-4">All Platform Shipments</h2>
+<div class="overflow-x-auto">
+<table class="w-full text-left text-xs text-slate-300">
+<thead class="bg-slate-950 text-slate-400 uppercase tracking-wider border-b border-slate-800">
+<tr>
+<th class="p-4">Tracking Number</th>
+<th class="p-4">Client Email</th>
+<th class="p-4">Recipient</th>
+<th class="p-4">Destination</th>
+<th class="p-4">Current Status</th>
+<th class="p-4">Action</th>
+</tr>
+</thead>
+<tbody id="admin-shipment-list" class="divide-y divide-slate-800">
+<tr>
+<td colspan="6" class="p-4 text-center text-slate-500">Loading all shipments...</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</main>
+
+<!-- UPDATE STATUS MODAL -->
+<div id="updateModal" class="hidden fixed inset-0 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center px-4">
+<div class="bg-navy-900 border border-slate-800 p-8 rounded-3xl shadow-2xl max-w-md w-full space-y-6 text-white">
+<div class="flex justify-between items-center border-b border-slate-800 pb-4">
+<h3 class="text-lg font-black tracking-tight">Update Package Status</h3>
+<button onclick="closeModal()" class="text-slate-400 hover:text-white">&times;</button>
+</div>
+
+<form onsubmit="submitStatusUpdate(event)" class="space-y-4 text-xs">
+<input type="hidden" id="modalTracking">
+<input type="hidden" id="modalEmail">
+<input type="hidden" id="modalRecipient">
+
+<div class="space-y-1">
+<label class="text-slate-300 font-medium">New Status</label>
+<input type="text" id="modalNewStatus" required placeholder="e.g. Out for Delivery" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-blue-600">
+</div>
+
+<div class="space-y-1">
+<label class="text-slate-300 font-medium">Current Location / Facility</label>
+<input type="text" id="modalLocation" required placeholder="e.g. Chicago Sorting Hub" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-blue-600">
+</div>
+
+<button type="submit" id="modal-btn" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3.5 rounded-xl transition shadow-lg shadow-blue-600/30 text-sm">
+Update Status & Email Client
+</button>
+</form>
+</div>
+</div>
+
+<footer class="bg-navy-950 text-slate-500 py-6 text-center text-xs border-t border-slate-900">
+&copy; 2026 PHL Express Admin. All rights reserved.
+</footer>
+
+<script>
+const firebaseConfig = {
+apiKey: "AIzaSyBdqx9c9otXv5Si1MMrwnPxDoVkJWdYSd4",
+authDomain: "phl-express.firebaseapp.com",
+databaseURL: "https://phl-express-default-rtdb.firebaseio.com",
+projectId: "phl-express",
+storageBucket: "phl-express.firebasestorage.app",
+messagingSenderId: "561028625183",
+appId: "1:561028625183:web:ceb8ba2452a79ecdffb62a",
+measurementId: "G-838P851DXJ"
+};
+firebase.initializeApp(firebaseConfig);
+const db = firebase.database();
+
+// Load all shipments in real-time
+db.ref("shipments").on("value", (snapshot) => {
+const table = document.getElementById("admin-shipment-list");
+table.innerHTML = "";
+
+if (!snapshot.exists()) {
+table.innerHTML = `<tr><td colspan="6" class="p-4 text-center text-slate-500">No shipments found in database.</td></tr>`;
+return;
+}
+
+snapshot.forEach((childSnap) => {
+const s = childSnap.val();
+table.innerHTML += `
+<tr class="hover:bg-slate-950/50 transition">
+<td class="p-4 font-mono font-bold text-blue-400">${s.trackingNumber}</td>
+<td class="p-4 text-slate-400">${s.clientEmail || 'N/A'}</td>
+<td class="p-4 text-white font-medium">${s.recipient}</td>
+<td class="p-4">${s.destination}</td>
+<td class="p-4"><span class="bg-blue-600/10 border border-blue-600/20 text-blue-400 px-2.5 py-1 rounded-lg font-semibold">${s.currentStatus}</span></td>
+<td class="p-4">
+<button onclick="openModal('${s.trackingNumber}', '${s.clientEmail}', '${s.recipient}')" class="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1.5 rounded-lg font-medium transition">Update Status</button>
+</td>
+</tr>
+`;
+});
+});
+
+function openModal(trackingNumber, email, recipient) {
+document.getElementById("modalTracking").value = trackingNumber;
+document.getElementById("modalEmail").value = email;
+document.getElementById("modalRecipient").value = recipient;
+document.getElementById("updateModal").classList.remove("hidden");
+}
+
+function closeModal() {
+document.getElementById("updateModal").classList.add("hidden");
+}
+
+function submitStatusUpdate(e) {
+e.preventDefault();
+const trackingNumber = document.getElementById("modalTracking").value;
+const clientEmail = document.getElementById("modalEmail").value;
+const recipient = document.getElementById("modalRecipient").value;
+const newStatus = document.getElementById("modalNewStatus").value;
+const location = document.getElementById("modalLocation").value;
+const btn = document.getElementById("modal-btn");
+
+btn.innerText = "Updating & Emailing...";
+btn.disabled = true;
+
 const dbRef = db.ref("shipments/" + trackingNumber);
 
 dbRef.once("value").then((snapshot) => {
 const shipment = snapshot.val();
-if (!shipment) {
-alert("Tracking number not found!");
-return;
-}
-
-// Create the new history entry
 const newEntry = {
 status: newStatus,
-location: newLocation,
+location: location,
 timestamp: new Date().toLocaleString()
 };
 
-// Append to existing history array
 const updatedHistory = shipment.history ? [...shipment.history, newEntry] : [newEntry];
 
-// Update Firebase Database
-dbRef.update({
+return dbRef.update({
 currentStatus: newStatus,
 history: updatedHistory
-}).then(() => {
-// Send instant email notification via EmailJS
-return emailjs.send("service_q2z18lj", "jrxtuv9", {
-to_name: shipment.recipient || "Valued Client",
-to_email: shipment.clientEmail,
-message_title: `Shipment Status Update: ${newStatus}`,
-message_body: `Your package (${trackingNumber}) status has been updated to: ${newStatus}. Current Location: ${newLocation}. Log in to your tracking portal to view the full timeline.`
 });
 })
 .then(() => {
-alert("Package history successfully updated and notification email sent to client!");
+return emailjs.send("service_q2z18lj", "jrxtuv9", {
+to_name: recipient,
+to_email: clientEmail,
+message_title: `Shipment Update: ${newStatus}`,
+message_body: `Your package (${trackingNumber}) has a new update! Status: ${newStatus}. Location: ${location}. Log in to view your complete tracking history.`
+});
+})
+.then(() => {
+alert("Status successfully updated and client notified via email!");
+closeModal();
+document.querySelector("form").reset();
+btn.innerText = "Update Status & Email Client";
+btn.disabled = false;
 })
 .catch((err) => {
 console.error("Update error:", err);
-alert("Database updated, but email notification failed.");
-});
+alert("Error updating shipment or sending notification.");
+btn.innerText = "Update Status & Email Client";
+btn.disabled = false;
 });
 }
+</script>
+</body>
+</html>
