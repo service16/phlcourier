@@ -110,6 +110,7 @@ btn.innerText = "Creating account...";
 
 auth.createUserWithEmailAndPassword(email, password)
 .then((cred) => {
+// Save user profile data to database
 return db.ref("users/" + cred.user.uid).set({
 fullName: name,
 email: email,
@@ -118,32 +119,33 @@ createdAt: new Date().toISOString()
 });
 })
 .then(() => {
-return emailjs.send("service_q2z18lj", "jrxtuv9", {
+// Send welcome email in the background without blocking login
+emailjs.send("service_q2z18lj", "jrxtuv9", {
 to_name: name,
 to_email: email,
 message_title: "Account Successfully Created!",
 message_body: "Welcome to PHL Express Global Logistics! Your account has been successfully created and approved for shipping management."
+}).catch(err => {
+console.warn("Background email notification skipped:", err);
 });
-})
-.then(() => {
+
+// Immediately redirect user to dashboard smoothly
 window.location.href = "dashboard.html";
 })
 .catch((err) => {
-console.error("Full Error Object:", err);
-let errorMessage = "An unexpected error occurred.";
-if (typeof err === "string") {
-errorMessage = err;
-} else if (err && err.message) {
-errorMessage = err.message;
-} else if (err && err.text) {
-errorMessage = err.text;
-} else {
-errorMessage = JSON.stringify(err);
+console.error("Signup error:", err);
+let friendlyMessage = "Unable to create your account right now. Please try again.";
+
+// Map technical Firebase errors to polite, professional customer messages
+if (err.code === "auth/email-already-in-use") {
+friendlyMessage = "This email address is already registered. Please log in to your account instead.";
+} else if (err.code === "auth/weak-password") {
+friendlyMessage = "For security reasons, your password must be at least 6 characters long.";
+} else if (err.code === "auth/invalid-email") {
+friendlyMessage = "Please enter a valid email address format.";
 }
-if (errorMessage === "{}" || errorMessage === "undefined") {
-errorMessage = "Registration or email sending failed. Please check your EmailJS template settings.";
-}
-errBox.innerText = errorMessage;
+
+errBox.innerText = friendlyMessage;
 errBox.classList.remove("hidden");
 btn.innerText = "Create Account";
 });
