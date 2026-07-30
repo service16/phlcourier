@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Client Dashboard | PHL Express Global Logistics</title>
+<title>Client Dashboard | Enterprise Logistics Portal</title>
 <link rel="icon" type="image/png" href="logo.png">
 <script src="https://cdn.tailwindcss.com"></script>
 
@@ -15,7 +15,7 @@
 <!-- EmailJS SDK -->
 <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
 <script type="text/javascript">
-emailjs.init("fpalDA0DLYaRkVD0o");
+emailjs.init("fpa1DA0DLYaRkVd0o");
 </script>
 
 <script>
@@ -31,13 +31,14 @@ blue: { 600: '#2563EB', 700: '#1D4ED8' }
 }
 </script>
 </head>
-<body class="bg-slate-950 font-sans text-slate-300 antialiased min-h-screen flex flex-col justify-between">
+<body class="bg-slate-950 font-sans text-slate-300 antialiased min-h-screen flex flex-col justify-between selection:bg-amber-500 selection:text-slate-950">
 
-<header class="bg-navy-950 border-b border-slate-800">
+<!-- Header -->
+<header class="bg-navy-950 border-b border-slate-800 sticky top-0 z-40 backdrop-blur-md bg-opacity-90">
 <div class="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
 <div class="flex items-center space-x-6">
 <div class="flex items-center space-x-3">
-<img src="logo.png" alt="PHL Express Logo" class="h-10 w-10 rounded-xl object-cover shadow-lg shadow-blue-600/30">
+<img src="logo.png" alt="Logo" class="h-10 w-10 rounded-xl object-cover shadow-lg shadow-blue-600/30">
 <div class="flex flex-col">
 <span class="font-black tracking-tight text-lg text-white">PHL EXPRESS</span>
 <span class="text-[10px] tracking-widest text-blue-400 uppercase font-semibold">Client Portal</span>
@@ -55,7 +56,8 @@ blue: { 600: '#2563EB', 700: '#1D4ED8' }
 </div>
 </header>
 
-<main class="flex-grow max-w-7xl w-full mx-auto px-6 py-8 space-y-8">
+<!-- Main Content -->
+<main class="flex-grow max-w-7xl w-full mx-auto px-6 py-10 space-y-8">
 <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
 
 <!-- USER PROFILE CARD -->
@@ -83,34 +85,34 @@ blue: { 600: '#2563EB', 700: '#1D4ED8' }
 <div class="lg:col-span-2 bg-navy-900 border border-slate-800 p-6 rounded-3xl shadow-xl space-y-6">
 <div class="border-b border-slate-800 pb-4">
 <h2 class="text-lg font-black tracking-tight text-white">Create New Shipment</h2>
-<p class="text-xs text-slate-400">Fill out shipment details to generate a tracking code and notify yourself via email.</p>
+<p class="text-xs text-slate-400">Fill out shipment details to generate a tracking code and dispatch confirmation via email.</p>
 </div>
 
 <form onsubmit="handleBookShipment(event)" class="space-y-4 text-xs">
 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
 <div class="space-y-1">
 <label class="text-slate-300 font-medium">Recipient Name</label>
-<input type="text" id="recipientName" required placeholder="Jane Doe" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-blue-600">
+<input type="text" id="recipientName" required placeholder="Jane Doe" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-blue-600 transition">
 </div>
 <div class="space-y-1">
 <label class="text-slate-300 font-medium">Destination Country/City</label>
-<input type="text" id="destination" required placeholder="London, UK" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-blue-600">
+<input type="text" id="destination" required placeholder="London, UK" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-blue-600 transition">
 </div>
 </div>
 
 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
 <div class="space-y-1">
 <label class="text-slate-300 font-medium">Package Description</label>
-<input type="text" id="description" required placeholder="Documents / Electronics" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-blue-600">
+<input type="text" id="description" required placeholder="Documents / Electronics" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-blue-600 transition">
 </div>
 <div class="space-y-1">
 <label class="text-slate-300 font-medium">Weight (kg)</label>
-<input type="number" step="0.1" id="weight" required placeholder="2.5" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-blue-600">
+<input type="number" step="0.1" id="weight" required placeholder="2.5" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-blue-600 transition">
 </div>
 </div>
 
-<button type="submit" id="book-btn" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3.5 rounded-xl transition shadow-lg shadow-blue-600/30 text-sm">
-Book Shipment & Send Tracking Number via Email
+<button type="submit" id="book-btn" class="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-3.5 rounded-xl transition shadow-lg shadow-blue-600/30 text-xs uppercase tracking-wider">
+Book Shipment & Generate Tracking ID
 </button>
 </form>
 </div>
@@ -132,7 +134,7 @@ Book Shipment & Send Tracking Number via Email
 </thead>
 <tbody id="client-shipment-list" class="divide-y divide-slate-800">
 <tr>
-<td colspan="5" class="p-4 text-center text-slate-500">Loading your shipments...</td>
+<td colspan="5" class="p-6 text-center text-slate-500">Loading your shipments...</td>
 </tr>
 </tbody>
 </table>
@@ -141,16 +143,16 @@ Book Shipment & Send Tracking Number via Email
 </main>
 
 <footer class="bg-navy-950 text-slate-500 py-6 text-center text-xs border-t border-slate-900">
-&copy; 2026 PHL Express. All rights reserved.
+&copy; 2026 Enterprise Logistics Solutions. All rights reserved.
 </footer>
 
 <script>
 const firebaseConfig = {
-apiKey: "AIzaSyBdqx9c9otXv5Si1MMrwnPxDoVkJWdYSd4",
+apiKey: "AIzaSyBdqx9c9otXv5i1MMrwnPxDoVkJwDySd4",
 authDomain: "phl-express.firebaseapp.com",
 databaseURL: "https://phl-express-default-rtdb.firebaseio.com",
 projectId: "phl-express",
-storageBucket: "phl-express.firebasestorage.app",
+storageBucket: "phl-express.appspot.com",
 messagingSenderId: "561028625183",
 appId: "1:561028625183:web:ceb8ba2452a79ecdffb62a",
 measurementId: "G-838P851DXJ"
@@ -183,19 +185,30 @@ const table = document.getElementById("client-shipment-list");
 table.innerHTML = "";
 
 if (!snapshot.exists()) {
-table.innerHTML = `<tr><td colspan="5" class="p-4 text-center text-slate-500">No shipments found. Book your first package above!</td></tr>`;
+table.innerHTML = `<tr><td colspan="5" class="p-6 text-center text-slate-500">No shipments found. Book your first package above!</td></tr>`;
 return;
 }
 
 snapshot.forEach((childSnap) => {
 const s = childSnap.val();
 const dateFormatted = new Date(s.createdAt).toLocaleDateString();
+const status = s.currentStatus || 'Booked';
+
+// Dynamic badge styling based on package status
+let badgeColor = "bg-blue-600/10 text-blue-400 border-blue-600/20";
+const statusLower = status.toLowerCase();
+if (statusLower.includes('transit')) {
+badgeColor = "bg-amber-500/10 text-amber-400 border-amber-500/20";
+} else if (statusLower.includes('delivered')) {
+badgeColor = "bg-emerald-500/10 text-emerald-400 border-emerald-500/20";
+}
+
 table.innerHTML += `
 <tr class="hover:bg-slate-950/50 transition">
-<td class="p-4 font-mono font-bold text-blue-400">${s.trackingNumber}</td>
+<td class="p-4 font-mono font-bold text-amber-400">${s.trackingNumber}</td>
 <td class="p-4 text-white font-medium">${s.recipient}</td>
-<td class="p-4">${s.destination}</td>
-<td class="p-4"><span class="bg-blue-600/10 border border-blue-600/20 text-blue-400 px-2.5 py-1 rounded-lg font-semibold">${s.currentStatus}</span></td>
+<td class="p-4 text-slate-300">${s.destination}</td>
+<td class="p-4"><span class="inline-block border px-2.5 py-1 rounded-lg font-semibold text-[10px] ${badgeColor}">${status}</span></td>
 <td class="p-4 text-slate-400">${dateFormatted}</td>
 </tr>
 `;
@@ -206,10 +219,10 @@ table.innerHTML += `
 function handleBookShipment(e) {
 e.preventDefault();
 
-const recipient = document.getElementById("recipientName").value;
-const destination = document.getElementById("destination").value;
-const description = document.getElementById("description").value;
-const weight = document.getElementById("weight").value;
+const recipient = document.getElementById("recipientName").value.trim();
+const destination = document.getElementById("destination").value.trim();
+const description = document.getElementById("description").value.trim();
+const weight = document.getElementById("weight").value.trim();
 const user = auth.currentUser;
 
 if (!user) {
@@ -255,15 +268,15 @@ message: bookingMessage
 console.warn("Email notification warning:", err);
 });
 
-alert("Success! Shipment booked successfully.\nTracking Number: " + trackingNumber);
+alert("Success! Shipment booked successfully.\nYour Tracking Number: " + trackingNumber);
 document.querySelector("form").reset();
-btn.innerText = "Book Shipment & Send Tracking Number via Email";
+btn.innerText = "Book Shipment & Generate Tracking ID";
 btn.disabled = false;
 })
 .catch((err) => {
 console.error("Booking error:", err);
 alert("Error saving shipment to database. Please try again.");
-btn.innerText = "Book Shipment & Send Tracking Number via Email";
+btn.innerText = "Book Shipment & Generate Tracking ID";
 btn.disabled = false;
 });
 }
