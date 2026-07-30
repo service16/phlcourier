@@ -1,0 +1,26 @@
+function trackPackage(trackingNumber) {
+db.ref("shipments/" + trackingNumber).once("value")
+.then((snapshot) => {
+const data = snapshot.val();
+if (!data) {
+alert("Tracking number not found. Please check and try again.");
+return;
+}
+
+// Display package details on your tracking UI
+document.getElementById("status-display").innerText = data.currentStatus;
+document.getElementById("destination-display").innerText = data.destination;
+
+// Render package history timeline
+const historyList = document.getElementById("history-timeline");
+historyList.innerHTML = "";
+data.history.forEach((h) => {
+historyList.innerHTML += `
+<div class="border-l-2 border-blue-600 pl-4 py-2">
+<p class="text-sm font-bold text-white">${h.status}</p>
+<p class="text-xs text-slate-400">${h.location} - ${h.timestamp}</p>
+</div>
+`;
+});
+});
+}
