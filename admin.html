@@ -28,7 +28,7 @@ const firebaseConfig = {
 apiKey: "AIzaSyAp5Xbup9qdNplMzkQPgeu49ZFjq0RLgko",
 authDomain: "phl-courier.firebaseapp.com",
 projectId: "phl-courier",
-databaseURL: "https://phl-courier-default-rtdb.firebaseio.com",
+databaseURL: "https://phl-courier-default-rtdb.firebaseio.com", // Double-check if your database requires a region suffix here!
 storageBucket: "phl-courier.firebasestorage.app",
 messagingSenderId: "858130682931",
 appId: "1:858130682931:web:8493a4470a9e0e5827bf46",
@@ -198,7 +198,7 @@ if (isAuth === "true") {
 document.getElementById("login-overlay").classList.add("hidden");
 document.getElementById("admin-dashboard").classList.remove("hidden");
 document.getElementById("admin-dashboard").classList.add("flex");
-resetIdleTimer(); // Fixed: changed from startIdleTimer() to resetIdleTimer()
+resetIdleTimer();
 loadAllShipments();
 } else {
 document.getElementById("login-overlay").classList.remove("hidden");
@@ -277,7 +277,23 @@ timestamp: now
 }]
 };
 
+let finished = false;
+
+// 5-Second Safety Timeout (Forces button to unlock if network is blocked)
+const safetyTimer = setTimeout(() => {
+if (!finished) {
+finished = true;
+submitBtn.innerText = "Save & Publish Shipment";
+submitBtn.disabled = false;
+alert("Connection blocked or timed out! Please check if an ad-blocker or browser shield (like Brave/uBlock) is blocking Firebase connections on GitHub Pages.");
+}
+}, 5000);
+
 db.ref("shipments/" + trackingNumber).set(shipmentData).then(() => {
+if (finished) return;
+finished = true;
+clearTimeout(safetyTimer);
+
 submitBtn.innerText = "Save & Publish Shipment";
 submitBtn.disabled = false;
 const successMsg = document.getElementById("save-success");
@@ -287,6 +303,10 @@ document.getElementById("shipment-form").reset();
 generateTrackingNumber();
 loadAllShipments();
 }).catch((err) => {
+if (finished) return;
+finished = true;
+clearTimeout(safetyTimer);
+
 submitBtn.innerText = "Save & Publish Shipment";
 submitBtn.disabled = false;
 alert("Firebase Error: " + err.message);
