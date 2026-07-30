@@ -7,10 +7,16 @@
 <link rel="icon" type="image/png" href="logo.png">
 <script src="https://cdn.tailwindcss.com"></script>
 
-<!-- Firebase App Core & Firestore Compat SDKs -->
+<!-- Firebase SDKs -->
 <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
+
+<!-- EmailJS SDK -->
+<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+<script type="text/javascript">
+emailjs.init("fpalDA0DLYaRkVD0o");
+</script>
 
 <script>
 tailwind.config = {
@@ -89,7 +95,7 @@ Log Out
 </div>
 <div class="sm:col-span-2 pt-2">
 <button type="submit" id="shipment-btn" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 rounded-xl transition shadow-lg shadow-blue-600/30 text-xs">
-Book Shipment & Submit for Admin Approval
+Book Shipment & Send Tracking Number via Email
 </button>
 </div>
 </form>
@@ -143,34 +149,31 @@ firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
 const db = firebase.firestore();
 
-// Auth state observer
+let clientFullName = "";
+
 auth.onAuthStateChanged((user) => {
 if (!user) {
 window.location.href = "login.html";
 } else {
-// Populate Profile immediately from Auth
 const email = user.email;
 document.getElementById("profile-email").innerText = email;
 
-// Fetch User Profile from Firestore
 db.collection("users").doc(user.uid).get().then((doc) => {
 if (doc.exists && doc.data().fullName) {
-const name = doc.data().fullName;
-document.getElementById("profile-name").innerText = name;
-document.getElementById("user-display-name").innerText = `Hi, ${name}`;
+clientFullName = doc.data().fullName;
+document.getElementById("profile-name").innerText = clientFullName;
+document.getElementById("user-display-name").innerText = `Hi, ${clientFullName}`;
 } else {
-// Fallback name if Firestore doc is missing
-const fallbackName = email.split('@')[0];
-document.getElementById("profile-name").innerText = fallbackName;
-document.getElementById("user-display-name").innerText = `Hi, ${fallbackName}`;
+clientFullName = email.split('@')[0];
+document.getElementById("profile-name").innerText = clientFullName;
+document.getElementById("user-display-name").innerText = `Hi, ${clientFullName}`;
 }
 }).catch(() => {
-const fallbackName = email.split('@')[0];
-document.getElementById("profile-name").innerText = fallbackName;
-document.getElementById("user-display-name").innerText = `Hi, ${fallbackName}`;
+clientFullName = email.split('@')[0];
+document.getElementById("profile-name").innerText = clientFullName;
+document.getElementById("user-display-name").innerText = `Hi, ${clientFullName}`;
 });
 
-// Fetch User Shipments
 loadUserShipments(user.uid);
 }
 });
@@ -222,7 +225,7 @@ const user = auth.currentUser;
 if (!user) return;
 
 const btn = document.getElementById("shipment-btn");
-btn.innerText = "Submitting for approval...";
+btn.innerText = "Booking & emailing tracking number...";
 
 const trackingNumber = "PHL-" + Math.floor(100000000 + Math.random() * 900000000);
 const shipmentData = {
@@ -239,14 +242,22 @@ createdAt: new Date().toISOString()
 
 db.collection("shipments").add(shipmentData)
 .then(() => {
-alert(`Shipment booked successfully! Your tracking number is ${trackingNumber}. It is currently Pending Admin Approval.`);
+return emailjs.send("service_q2z18lj", "jrxtuv9", {
+to_name: clientFullName || user.email,
+to_email: user.email,
+message_title: "Shipment Booked & Tracking Number Assigned",
+message_body: `Your shipment to ${shipmentData.destination} has been booked. Your tracking number is: ${trackingNumber}. Status: Pending Approval.`
+});
+})
+.then(() => {
+alert(`Shipment booked successfully! Tracking Number ${trackingNumber} has been emailed to you.`);
 document.querySelector("form").reset();
-btn.innerText = "Book Shipment & Submit for Admin Approval";
+btn.innerText = "Book Shipment & Send Tracking Number via Email";
 loadUserShipments(user.uid);
 })
 .catch((err) => {
 alert("Error: " + err.message);
-btn.innerText = "Book Shipment & Submit for Admin Approval";
+btn.innerText = "Book Shipment & Send Tracking Number via Email";
 });
 }
 
