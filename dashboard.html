@@ -1,38 +1,106 @@
-import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.x.x/firebase-auth.js";
-import { getFirestore, collection, add슐, query, where, getDocs } from "https://www.gstatic.com/firebasejs/10.x.x/firebase-firestore.js";
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.16.0/firebase-app.js";
+import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/12.16.0/firebase-auth.js";
+import { getFirestore, collection, addDoc, query, where, getDocs, serverTimestamp } from "https://www.gstatic.com/firebasejs/12.16.0/firebase-firestore.js";
 
-// Check if user is logged in
+const firebaseConfig = {
+apiKey: "AIzaSyBdqx9cOtXv5Si1MMrwnPxDoVkJWdYSd4",
+authDomain: "phl-express.firebaseapp.com",
+projectId: "phl-express",
+storageBucket: "phl-express.firebasestorage.app",
+messagingSenderId: "561028625183",
+appId: "1:561028625183:web:ceb8ba2452a79ecdffb62a",
+measurementId: "G-838P851DXJ"
+};
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
+
+let currentUser = null;
+
 onAuthStateChanged(auth, (user) => {
 if (user) {
+currentUser = user;
 loadUserShipments(user.uid);
+} else {
+window.location.href = "login.html";
+}
+});
 
 document.getElementById("shipment-form").addEventListener("submit", async (e) => {
 e.preventDefault();
 
 const itemDetails = document.getElementById("item-details").value;
-const destination = document.getElementById("destination").value;
 const recipientName = document.getElementById("recipient-name").value;
+const destination = document.getElementById("destination").value;
 
 try {
 await addDoc(collection(db, "shipments"), {
-userId: user.uid,
-userEmail: user.email,
+userId: currentUser.uid,
+userEmail: currentUser.email,
 itemDetails: itemDetails,
-destination: destination,
 recipientName: recipientName,
+destination: destination,
 status: "Pending",
-trackingNumber: null, // Will be generated when admin approves
-createdAt: new Date()
+trackingNumber: "Pending Approval",
+createdAt: serverTimestamp()
 });
 
-alert("Shipment request submitted! It is currently pending admin approval.");
+alert("Shipment request created successfully! Pending admin approval.");
 document.getElementById("shipment-form").reset();
-loadUserShipments(user.uid);
+loadUserShipments(currentUser.uid);
 } catch (error) {
-alert("Error creating shipment: " + error.message);
+console.error("Error adding shipment: ", error);
+alert("Failed to create shipment request.");
 }
 });
-} else {
+
+async function loadUserShipments(userId) {
+const container = document.getElementById("shipments-container");
+container.innerHTML = `<p class="text-gray-500 text-sm">Loading shipments...</p>`;
+
+try {
+const q = query(collection(db, "shipments"), where("userId", "==", userId));
+const querySnapshot = await getDocs(q);
+
+if (querySnapshot.empty) {
+container.innerHTML = `<p class="text-gray-500 text-sm">You have no shipment requests yet.</p>`;
+return;
+}
+
+container.innerHTML = "";
+querySnapshot.forEach((docSnap) => {
+const data = docSnap.data();
+const statusColor = data.status === "Approved" ? "text-green-400 bg-green-950/40 border-green-800" : "text-yellow-400 bg-yellow-950/40 border-yellow-800";
+
+const card = `
+<div class="bg-zinc-950 border border-zinc-800 p-4 rounded-lg flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+<div>
+<div class="flex items-center gap-2 mb-1">
+<span class="text-xs px-2 py-0.5 rounded border ${statusColor}">${data.status}</span>
+<span class="text-xs text-gray-400">Tracking: <b>${data.trackingNumber}</b></span>
+</div>
+<p class="text-sm font-semibold text-white mt-1">Item: ${escapeHtml(data.itemDetails)}</p>
+<p class="text-xs text-gray-400">Destination: ${escapeHtml(data.destination)} (Recipient: ${escapeHtml(data.recipientName)})</p>
+</div>
+</div>
+`;
+container.innerHTML += card;
+});
+} catch (error) {
+console.error("Error loading shipments:", error);
+container.innerHTML = `<p class="text-red-500 text-sm">Error loading your shipments data.</p>`;
+}
+}
+
+document.getElementById("logout-btn").addEventListener("click", () => {
+signOut(auth).then(() => {
 window.location.href = "login.html";
-}
+}).catch((error) => {
+console.error("Sign out error", error);
 });
+});
+
+function escapeHtml(str) {
+return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+}
