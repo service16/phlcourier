@@ -1,5 +1,6 @@
 function trackShipment() {
-const inputVal = document.getElementById('trackingInput').value.trim();
+// 1. Automatically convert input to uppercase to prevent case-sensitivity errors
+const inputVal = document.getElementById('trackingInput').value.trim().toUpperCase();
 const resultSection = document.getElementById('resultSection');
 const resStatus = document.getElementById('resStatus');
 const resTrackingNum = document.getElementById('resTrackingNum');
@@ -11,10 +12,10 @@ alert('Please enter a valid tracking number.');
 return;
 }
 
-// Check if there is custom data saved from the Admin Portal in browser storage
+// 2. Get saved shipments from browser storage
 let shipments = JSON.parse(localStorage.getItem('phl_shipments')) || {};
 
-// Default sample data if none exists or for testing
+// 3. Default sample data if none exists
 if (!shipments["PHL-948201"]) {
 shipments["PHL-948201"] = {
 status: "In Transit",
@@ -24,6 +25,8 @@ history: [
 { date: "July 29, 2026 - 09:15", note: "Departed international sorting hub" }
 ]
 };
+// Save the default data back to localStorage so it persists
+localStorage.setItem('phl_shipments', JSON.stringify(shipments));
 }
 
 const shipment = shipments[inputVal];
@@ -35,21 +38,26 @@ resStatus.textContent = shipment.status;
 resDelivery.textContent = shipment.delivery;
 
 // Color code status badge
-if (shipment.status.toLowerCase().includes('transit')) {
+const statusLower = shipment.status.toLowerCase();
+if (statusLower.includes('transit')) {
 resStatus.style.backgroundColor = '#f39c12';
-} else if (shipment.status.toLowerCase().includes('delivered')) {
+} else if (statusLower.includes('delivered')) {
 resStatus.style.backgroundColor = '#27ae60';
 } else {
 resStatus.style.backgroundColor = '#3498db';
 }
 
-// Build timeline history
+// Build timeline history safely
 timelineList.innerHTML = '';
+if (shipment.history && Array.isArray(shipment.history)) {
 shipment.history.forEach(item => {
 const li = document.createElement('li');
 li.innerHTML = `<strong>${item.date}</strong><p>${item.note}</p>`;
 timelineList.appendChild(li);
 });
+} else {
+timelineList.innerHTML = '<li><strong>Status Update</strong><p>No detailed history available yet.</p></li>';
+}
 
 // Smooth scroll to results
 resultSection.scrollIntoView({ behavior: 'smooth' });
