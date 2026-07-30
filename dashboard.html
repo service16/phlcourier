@@ -55,11 +55,11 @@ Log Out
 <h2 class="text-sm font-bold uppercase tracking-wider text-blue-400">My Profile</h2>
 <div class="space-y-2 text-xs">
 <p class="text-slate-400">Full Name:</p>
-<p id="profile-name" class="text-white font-semibold text-sm">--</p>
+<p id="profile-name" class="text-white font-semibold text-sm">Loading...</p>
 </div>
 <div class="space-y-2 text-xs">
 <p class="text-slate-400">Email Address:</p>
-<p id="profile-email" class="text-white font-semibold text-sm">--</p>
+<p id="profile-email" class="text-white font-semibold text-sm">Loading...</p>
 </div>
 <div class="space-y-2 text-xs">
 <p class="text-slate-400">Account Type:</p>
@@ -89,7 +89,7 @@ Log Out
 </div>
 <div class="sm:col-span-2 pt-2">
 <button type="submit" id="shipment-btn" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 rounded-xl transition shadow-lg shadow-blue-600/30 text-xs">
-Book Shipment & Generate Tracking Number
+Book Shipment & Submit for Admin Approval
 </button>
 </div>
 </form>
@@ -148,14 +148,26 @@ auth.onAuthStateChanged((user) => {
 if (!user) {
 window.location.href = "login.html";
 } else {
-// Fetch User Profile
+// Populate Profile immediately from Auth
+const email = user.email;
+document.getElementById("profile-email").innerText = email;
+
+// Fetch User Profile from Firestore
 db.collection("users").doc(user.uid).get().then((doc) => {
-if (doc.exists) {
-const data = doc.data();
-document.getElementById("profile-name").innerText = data.fullName;
-document.getElementById("profile-email").innerText = data.email;
-document.getElementById("user-display-name").innerText = `Hi, ${data.fullName}`;
+if (doc.exists && doc.data().fullName) {
+const name = doc.data().fullName;
+document.getElementById("profile-name").innerText = name;
+document.getElementById("user-display-name").innerText = `Hi, ${name}`;
+} else {
+// Fallback name if Firestore doc is missing
+const fallbackName = email.split('@')[0];
+document.getElementById("profile-name").innerText = fallbackName;
+document.getElementById("user-display-name").innerText = `Hi, ${fallbackName}`;
 }
+}).catch(() => {
+const fallbackName = email.split('@')[0];
+document.getElementById("profile-name").innerText = fallbackName;
+document.getElementById("user-display-name").innerText = `Hi, ${fallbackName}`;
 });
 
 // Fetch User Shipments
@@ -177,12 +189,23 @@ return;
 
 snapshot.forEach((doc) => {
 const s = doc.data();
+let statusBadge = '';
+if(s.status === 'Approved') {
+statusBadge = `<span class="bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 px-2.5 py-1 rounded-full font-medium">Approved</span>`;
+} else if(s.status === 'In Transit') {
+statusBadge = `<span class="bg-blue-500/10 text-blue-400 border border-blue-500/20 px-2.5 py-1 rounded-full font-medium">In Transit</span>`;
+} else if(s.status === 'Delivered') {
+statusBadge = `<span class="bg-purple-500/10 text-purple-400 border border-purple-500/20 px-2.5 py-1 rounded-full font-medium">Delivered</span>`;
+} else {
+statusBadge = `<span class="bg-amber-500/10 text-amber-400 border border-amber-500/20 px-2.5 py-1 rounded-full font-medium">Pending Approval</span>`;
+}
+
 tbody.innerHTML += `
 <tr class="hover:bg-slate-950/50 transition">
 <td class="p-3 font-mono text-blue-400 font-bold">${s.trackingNumber}</td>
 <td class="p-3 text-white">${s.recipient}</td>
 <td class="p-3">${s.destination}</td>
-<td class="p-3"><span class="bg-amber-500/10 text-amber-400 border border-amber-500/20 px-2 py-0.5 rounded">${s.status || 'Order Placed'}</span></td>
+<td class="p-3">${statusBadge}</td>
 <td class="p-3 text-slate-400">${new Date(s.createdAt).toLocaleDateString()}</td>
 </tr>
 `;
@@ -199,30 +222,31 @@ const user = auth.currentUser;
 if (!user) return;
 
 const btn = document.getElementById("shipment-btn");
-btn.innerText = "Processing shipment...";
+btn.innerText = "Submitting for approval...";
 
 const trackingNumber = "PHL-" + Math.floor(100000000 + Math.random() * 900000000);
 const shipmentData = {
 userId: user.uid,
+userEmail: user.email,
 trackingNumber: trackingNumber,
 recipient: document.getElementById("recipient").value,
 destination: document.getElementById("destination").value,
 packageDesc: document.getElementById("package-desc").value,
 weight: document.getElementById("weight").value,
-status: "Order Placed",
+status: "Pending Approval",
 createdAt: new Date().toISOString()
 };
 
 db.collection("shipments").add(shipmentData)
 .then(() => {
-alert(`Shipment booked successfully! Tracking Number: ${trackingNumber}`);
+alert(`Shipment booked successfully! Your tracking number is ${trackingNumber}. It is currently Pending Admin Approval.`);
 document.querySelector("form").reset();
-btn.innerText = "Book Shipment & Generate Tracking Number";
+btn.innerText = "Book Shipment & Submit for Admin Approval";
 loadUserShipments(user.uid);
 })
 .catch((err) => {
 alert("Error: " + err.message);
-btn.innerText = "Book Shipment & Generate Tracking Number";
+btn.innerText = "Book Shipment & Submit for Admin Approval";
 });
 }
 
