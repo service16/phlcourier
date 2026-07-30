@@ -190,7 +190,7 @@ Save & Publish Shipment
 const ADMIN_USER = "admin";
 const ADMIN_PASS = "password123";
 let idleTimeout;
-const IDLE_LIMIT_MS = 2 * 60 * 1000; // 2 minutes
+const IDLE_LIMIT_MS = 2 * 60 * 1000;
 
 function checkSession() {
 const isAuth = sessionStorage.getItem("phl_admin_auth");
@@ -198,7 +198,7 @@ if (isAuth === "true") {
 document.getElementById("login-overlay").classList.add("hidden");
 document.getElementById("admin-dashboard").classList.remove("hidden");
 document.getElementById("admin-dashboard").classList.add("flex");
-startIdleTimer();
+resetIdleTimer(); // Fixed: changed from startIdleTimer() to resetIdleTimer()
 loadAllShipments();
 } else {
 document.getElementById("login-overlay").classList.remove("hidden");
@@ -262,7 +262,6 @@ const destination = document.getElementById("destination").value.trim();
 const currentStatus = document.getElementById("currentStatus").value;
 const initLocation = document.getElementById("initLocation").value.trim();
 const initDetails = document.getElementById("initDetails").value.trim();
-
 const now = new Date().toLocaleString();
 
 const shipmentData = {
@@ -270,14 +269,12 @@ trackingNumber: trackingNumber,
 recipient: recipient,
 destination: destination,
 currentStatus: currentStatus,
-history: [
-{
+history: [{
 status: currentStatus,
 location: initLocation,
 details: initDetails,
 timestamp: now
-}
-]
+}]
 };
 
 db.ref("shipments/" + trackingNumber).set(shipmentData).then(() => {
@@ -292,7 +289,7 @@ loadAllShipments();
 }).catch((err) => {
 submitBtn.innerText = "Save & Publish Shipment";
 submitBtn.disabled = false;
-alert("Firebase Error: " + err.message + "\n\nPlease check your Firebase Realtime Database rules.");
+alert("Firebase Error: " + err.message);
 });
 }
 
