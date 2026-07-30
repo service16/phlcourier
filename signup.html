@@ -129,7 +129,9 @@ message_body: "Welcome to PHL Express Global Logistics! Your account has been su
 window.location.href = "dashboard.html";
 })
 .catch((err) => {
-errBox.innerText = err.message;
+console.error("Full Error Object:", err);
+const errorMessage = err.message || err.text || JSON.stringify(err) || "An unexpected error occurred.";
+errBox.innerText = errorMessage;
 errBox.classList.remove("hidden");
 btn.innerText = "Create Account";
 });
