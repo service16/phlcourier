@@ -104,26 +104,25 @@ createdAt: new Date().toISOString()
 });
 })
 .then(() => {
-// 2. Fire EmailJS in the background without blocking login
-emailjs.send("service_q2z18lj", "template_r8be1pc", {
+// 2. Send EmailJS using service ID, jrxtuv9 template ID, parameters, and public key
+const templateParams = {
 to_name: fullName,
 to_email: email,
 message: `Welcome to PHL Express, ${fullName}!\n\nYour client portal account has been successfully created. You can now log in to book and track your shipments seamlessly.\n\nThank you for choosing us!`
-}).then(() => {
-console.log("Welcome email sent successfully!");
-}).catch((emailErr) => {
-console.warn("EmailJS background note:", emailErr);
-});
+};
 
-// 3. Complete signup & redirect
-alert("Account created successfully!");
+return emailjs.send("service_q2z18lj", "jrxtuv9", templateParams, "fpalDA0DLYaRkVD0o");
+})
+.then((response) => {
+console.log("EmailJS Success!", response.status, response.text);
+alert("Account created successfully & Welcome email sent!");
 window.location.href = "dashboard.html";
 })
 .catch((error) => {
-console.error("Signup error:", error);
-alert("Error: " + (error.message || "Unknown error occurred"));
-submitBtn.innerText = "Create Account";
-submitBtn.disabled = false;
+console.error("Signup or Email error details:", error);
+const errorMsg = error.text || error.message || JSON.stringify(error) || "Unknown error occurred";
+alert("Notice: Account created, but email dispatch reported: " + errorMsg);
+window.location.href = "dashboard.html";
 });
 });
 </script>
