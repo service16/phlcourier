@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Log In | PHL Express Global Logistics</title>
+<title>Login | PHL Express Global Logistics</title>
 <link rel="icon" type="image/png" href="logo.png">
 <script src="https://cdn.tailwindcss.com"></script>
 
@@ -50,7 +50,7 @@ blue: { 600: '#2563EB', 700: '#1D4ED8' }
 <div class="bg-navy-900 border border-slate-800 p-8 rounded-3xl shadow-2xl max-w-md w-full space-y-6 text-white">
 <div class="space-y-2 text-center">
 <h1 class="text-2xl font-black tracking-tight">Welcome Back</h1>
-<p class="text-xs text-slate-400">Log in to manage your shipments and track packages.</p>
+<p class="text-xs text-slate-400">Log in to manage your shipments and track package history.</p>
 </div>
 
 <div id="error-box" class="bg-rose-500/10 border border-rose-500/20 text-rose-400 text-xs p-3 rounded-xl hidden"></div>
@@ -90,6 +90,7 @@ measurementId: "G-838P851DXJ"
 };
 firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
+const db = firebase.database();
 
 function handleLogin(e) {
 e.preventDefault();
@@ -103,19 +104,34 @@ btn.innerText = "Logging in...";
 
 auth.signInWithEmailAndPassword(email, password)
 .then((cred) => {
-// Send login alert email via EmailJS in the background
+// Fetch user profile data to personalize login security alert email
+db.ref("users/" + cred.user.uid).once("value").then((snapshot) => {
+const userData = snapshot.val();
+const name = userData ? userData.fullName : "Valued Client";
+
+const loginMessage = `Hello ${name},\n\nA successful login to your PHL Express account was detected on ${new Date().toLocaleString()}.\n\nIf this was you, no further action is required.`;
+
+// Background login notification email
 emailjs.send("service_q2z18lj", "jrxtuv9", {
-to_name: cred.user.displayName || "Valued Client",
-to_email: cred.user.email,
-message_title: "New Login Alert",
-message_body: `Hello, your PHL Express account was just accessed from a web browser on ${new Date().toLocaleString()}. If this was you, you can safely ignore this email.`
-}).catch(err => console.log("Login email notification skipped"));
+to_name: name,
+to_email: email,
+message: loginMessage
+}).catch(err => console.warn("Login alert email skipped:", err));
+});
 
 window.location.href = "dashboard.html";
 })
 .catch((err) => {
 console.error("Login error:", err);
-errBox.innerText = err.message || "Failed to log in. Please check your credentials.";
+let friendlyMessage = "Invalid email or password. Please try again.";
+
+if (err.code === "auth/user-not-found" || err.code === "auth/wrong-password" || err.code === "auth/invalid-credential") {
+friendlyMessage = "Incorrect email or password. Please double-check your credentials.";
+} else if (err.code === "auth/too-many-requests") {
+friendlyMessage = "Access temporarily blocked due to multiple failed login attempts. Please try again later.";
+}
+
+errBox.innerText = friendlyMessage;
 errBox.classList.remove("hidden");
 btn.innerText = "Log In";
 });
