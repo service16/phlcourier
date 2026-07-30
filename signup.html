@@ -1,88 +1,73 @@
 <!DOCTYPE html>
-<html lang="en" class="scroll-smooth">
+<html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Sign Up | PHL Express Global Logistics</title>
-<link rel="icon" type="image/png" href="logo.png">
+<title>PHL Express - Create Account</title>
+<!-- Tailwind CSS CDN -->
 <script src="https://cdn.tailwindcss.com"></script>
-
-<!-- Firebase SDKs -->
-<script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
-
+<!-- Firebase App & Services -->
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
 <!-- EmailJS SDK -->
 <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
 <script type="text/javascript">
-emailjs.init("fpalDA0DLYaRkVD0o");
-</script>
-
-<script>
-tailwind.config = {
-theme: {
-extend: {
-colors: {
-navy: { 900: '#0F172A', 950: '#090D16' },
-blue: { 600: '#2563EB', 700: '#1D4ED8' }
-}
-}
-}
-}
+// Initialize EmailJS with your Public Key
+emailjs.init("YOUR_EMAILJS_PUBLIC_KEY"); // Replace with your actual EmailJS Public Key
 </script>
 </head>
-<body class="bg-slate-950 font-sans text-slate-300 antialiased min-h-screen flex flex-col justify-between">
+<body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col justify-between font-sans">
 
-<header class="bg-navy-950 border-b border-slate-800">
-<div class="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
-<a href="index.html" class="flex items-center space-x-3">
-<img src="logo.png" alt="PHL Express Logo" class="h-10 w-10 rounded-xl object-cover shadow-lg shadow-blue-600/30">
-<div class="flex flex-col">
-<span class="font-black tracking-tight text-lg text-white">PHL EXPRESS</span>
-<span class="text-[10px] tracking-widest text-blue-400 uppercase font-semibold">Global Logistics</span>
-</div>
-</a>
-<a href="login.html" class="text-xs text-slate-300 hover:text-white transition font-medium">Already have an account? <span class="text-blue-400 underline">Log In</span></a>
-</div>
+<!-- Header -->
+<header class="p-6 border-b border-slate-900 flex justify-between items-center">
+<div class="font-bold text-xl text-blue-500 tracking-wider">PHL EXPRESS</div>
+<a href="index.html" class="text-sm text-slate-400 hover:text-white transition">Back to Home</a>
 </header>
 
-<main class="flex-grow flex items-center justify-center px-4 py-12">
-<div class="bg-navy-900 border border-slate-800 p-8 rounded-3xl shadow-2xl max-w-md w-full space-y-6 text-white">
-<div class="space-y-2 text-center">
-<h1 class="text-2xl font-black tracking-tight">Create an Account</h1>
-<p class="text-xs text-slate-400">Join PHL Express to track and manage your shipments easily.</p>
+<!-- Main Signup Box -->
+<main class="flex-grow flex items-center justify-center p-4">
+<div class="bg-slate-900 border border-slate-800 rounded-2xl p-8 max-w-md w-full shadow-2xl">
+<div class="text-center mb-8">
+<h1 class="text-2xl font-bold tracking-tight text-white">Create an Account</h1>
+<p class="text-sm text-slate-400 mt-1">Join PHL Express to track and manage your shipments easily.</p>
 </div>
 
-<div id="error-box" class="bg-rose-500/10 border border-rose-500/20 text-rose-400 text-xs p-3 rounded-xl hidden"></div>
-
-<form onsubmit="handleSignup(event)" class="space-y-4 text-xs">
-<div class="space-y-1">
-<label class="text-slate-300 font-medium">Full Name</label>
-<input type="text" id="fullname" required placeholder="John Doe" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-blue-600">
+<form id="signupForm" class="space-y-5">
+<div>
+<label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-2">Full Name</label>
+<input type="text" id="fullName" required placeholder="John Doe" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-white placeholder-slate-600 focus:outline-none focus:border-blue-500 transition">
 </div>
 
-<div class="space-y-1">
-<label class="text-slate-300 font-medium">Email Address</label>
-<input type="email" id="email" required placeholder="name@example.com" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-blue-600">
+<div>
+<label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-2">Email Address</label>
+<input type="email" id="email" required placeholder="name@example.com" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-white placeholder-slate-600 focus:outline-none focus:border-blue-500 transition">
 </div>
 
-<div class="space-y-1">
-<label class="text-slate-300 font-medium">Password</label>
-<input type="password" id="password" required placeholder="••••••••" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-blue-600">
+<div>
+<label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-2">Password</label>
+<input type="password" id="password" required placeholder="••••••••" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-white placeholder-slate-600 focus:outline-none focus:border-blue-500 transition">
 </div>
 
-<button type="submit" id="submit-btn" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3.5 rounded-xl transition shadow-lg shadow-blue-600/30 text-sm">
+<button type="submit" id="signupBtn" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 rounded-xl transition shadow-lg shadow-blue-600/20">
 Create Account
 </button>
 </form>
+
+<div class="text-center mt-6 text-sm text-slate-400">
+Already have an account? <a href="login.html" class="text-blue-400 hover:underline font-medium">Log in</a>
+</div>
 </div>
 </main>
 
-<footer class="bg-navy-950 text-slate-500 py-6 text-center text-xs border-t border-slate-900">
-&copy; 2026 PHL Express. All rights reserved.
+<!-- Footer -->
+<footer class="py-6 text-center text-xs text-slate-600 border-t border-slate-900">
+&copy; 2026 PHL Express Global Logistics. All rights reserved.
 </footer>
 
+<!-- Script Logic -->
 <script>
+// Firebase Configuration
 const firebaseConfig = {
 apiKey: "AIzaSyBdqx9c9otXv5Si1MMrwnPxDoVkJWdYSd4",
 authDomain: "phl-express.firebaseapp.com",
@@ -94,58 +79,50 @@ appId: "1:561028625183:web:ceb8ba2452a79ecdffb62a",
 measurementId: "G-838P851DXJ"
 };
 firebase.initializeApp(firebaseConfig);
-const auth = firebase.auth();
 const db = firebase.database();
 
-function handleSignup(e) {
+// Signup Form Handler
+document.getElementById("signupForm").addEventListener("submit", function(e) {
 e.preventDefault();
-const name = document.getElementById("fullname").value;
+
+const fullName = document.getElementById("fullName").value;
 const email = document.getElementById("email").value;
 const password = document.getElementById("password").value;
-const errBox = document.getElementById("error-box");
-const btn = document.getElementById("submit-btn");
+const submitBtn = document.getElementById("signupBtn");
 
-errBox.classList.add("hidden");
-btn.innerText = "Creating account...";
+submitBtn.innerText = "Creating Account...";
+submitBtn.disabled = true;
 
-auth.createUserWithEmailAndPassword(email, password)
-.then((cred) => {
-return db.ref("users/" + cred.user.uid).set({
-fullName: name,
+// 1. Create user in Firebase Auth
+firebase.auth().createUserWithEmailAndPassword(email, password)
+.then((userCredential) => {
+const userId = userCredential.user.uid;
+
+// 2. Save user profile to Firebase Realtime Database
+return db.ref("users/" + userId).set({
+fullName: fullName,
 email: email,
-role: "client",
 createdAt: new Date().toISOString()
+}).then(() => {
+// 3. Send Welcome Email via EmailJS
+return emailjs.send("service_q2z18lj", "jrxtuv9", {
+to_name: fullName,
+to_email: email,
+message: `Welcome to PHL Express, ${fullName}!\n\nYour client portal account has been successfully created. You can now log in to book and track your shipments seamlessly.\n\nThank you for choosing us!`
+});
 });
 })
 .then(() => {
-// Background welcome email with unified 'message' variable
-const welcomeMessage = `Welcome to PHL Express Global Logistics, ${name}!\n\nYour client portal account has been successfully created and is ready for managing shipments.`;
-
-emailjs.send("service_q2z18lj", "jrxtuv9", {
-to_name: name,
-to_email: email,
-message: welcomeMessage
-}).catch(err => console.warn("Background email notification skipped:", err));
-
+alert("Account created successfully! Welcome email sent.");
 window.location.href = "dashboard.html";
 })
-.catch((err) => {
-console.error("Signup error:", err);
-let friendlyMessage = "Unable to create your account right now. Please try again.";
-
-if (err.code === "auth/email-already-in-use") {
-friendlyMessage = "This email address is already registered. Please log in to your account instead.";
-} else if (err.code === "auth/weak-password") {
-friendlyMessage = "For security reasons, your password must be at least 6 characters long.";
-} else if (err.code === "auth/invalid-email") {
-friendlyMessage = "Please enter a valid email address format.";
-}
-
-errBox.innerText = friendlyMessage;
-errBox.classList.remove("hidden");
-btn.innerText = "Create Account";
+.catch((error) => {
+console.error("Signup error:", error);
+alert("Error: " + error.message);
+submitBtn.innerText = "Create Account";
+submitBtn.disabled = false;
 });
-}
+});
 </script>
 </body>
 </html>
