@@ -104,8 +104,8 @@ fullName: fullName,
 email: email,
 createdAt: new Date().toISOString()
 }).then(() => {
-// 3. Send Welcome Email via EmailJS
-return emailjs.send("service_q2z18lj", "jrxtuv9", {
+// 3. Send Welcome Email via EmailJS with your correct template ID
+return emailjs.send("service_q2z18lj", "template_r8be1pc", {
 to_name: fullName,
 to_email: email,
 message: `Welcome to PHL Express, ${fullName}!\n\nYour client portal account has been successfully created. You can now log in to book and track your shipments seamlessly.\n\nThank you for choosing us!`
