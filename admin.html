@@ -118,7 +118,7 @@ Save Shipment Entry
 <div class="lg:col-span-2 bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-6">
 <div>
 <h2 class="text-lg font-bold text-navy-900">Active Cloud Shipments Database</h2>
-<p class="text-xs text-slate-500 mt-1">Manage statuses, update checkpoints, or remove packages.</p>
+<p class="text-xs text-slate-500 mt-1">Manage statuses, update checkpoints, approve customer requests, or remove packages.</p>
 </div>
 
 <div class="overflow-x-auto border border-slate-200 rounded-xl">
@@ -241,21 +241,35 @@ tbody.innerHTML = `<tr><td colspan="4" class="p-4 text-center text-slate-400">No
 return;
 }
 
-snapshot.forEach((doc) => {
-let s = doc.data();
+snapshot.forEach((docSnap) => {
+let s = docSnap.data();
+let docId = docSnap.id;
+let isPending = s.status === "Pending";
+
 let badgeColor = "bg-blue-50 text-blue-600 border-blue-200";
 if (s.status === "Delivered") badgeColor = "bg-emerald-50 text-emerald-600 border-emerald-200";
 if (s.status === "Out for Delivery") badgeColor = "bg-amber-50 text-amber-600 border-amber-200";
 if (s.status === "On Hold") badgeColor = "bg-rose-50 text-rose-600 border-rose-200";
+if (isPending) badgeColor = "bg-yellow-50 text-yellow-600 border-yellow-200";
+
+let trackingDisplay = s.trackingNo || s.trackingNumber || "Pending Approval";
+let recipientDisplay = s.recipient || s.recipientName || "N/A";
+
+if (isPending && s.itemDetails) {
+recipientDisplay += `<br><span class="text-[10px] text-slate-400">Item: ${s.itemDetails} (${s.userEmail || 'Customer'})</span>`;
+}
 
 tbody.innerHTML += `
 <tr>
-<td class="p-3 font-mono font-medium text-navy-900">${s.trackingNo}</td>
-<td class="p-3">${s.recipient}</td>
+<td class="p-3 font-mono font-medium text-navy-900">${trackingDisplay}</td>
+<td class="p-3">${recipientDisplay}</td>
 <td class="p-3"><span class="px-2 py-1 rounded-md text-[11px] font-semibold border ${badgeColor}">${s.status}</span></td>
 <td class="p-3 text-right space-x-2">
-<button onclick="openCheckpointModal('${s.trackingNo}')" class="bg-blue-50 text-blue-600 hover:bg-blue-100 px-2.5 py-1 rounded-lg font-medium transition">Manage Checkpoints</button>
-<button onclick="deleteShipment('${s.trackingNo}')" class="text-rose-600 hover:underline font-medium">Delete</button>
+${isPending ?
+`<button onclick="approveCustomerShipment('${docId}', '${s.recipientName || 'Customer'}', '${s.destination || ''}')" class="bg-amber-500 hover:bg-amber-600 text-white px-2.5 py-1 rounded-lg font-medium transition text-[11px]">Approve & Assign Tracking</button>` :
+`<button onclick="openCheckpointModal('${s.trackingNo}')" class="bg-blue-50 text-blue-600 hover:bg-blue-100 px-2.5 py-1 rounded-lg font-medium transition">Manage Checkpoints</button>`
+}
+<button onclick="deleteShipmentRecord('${docId}', '${s.trackingNo}')" class="text-rose-600 hover:underline font-medium">Delete</button>
 </td>
 </tr>
 `;
@@ -296,6 +310,39 @@ alert("Error saving shipment to cloud.");
 }
 }
 
+async function approveCustomerShipment(docId, recipient, destination) {
+const trackingNo = "PHL-" + Math.floor(100000 + Math.random() * 900000);
+const now = new Date().toISOString().slice(0, 16).replace('T', ' ');
+
+try {
+const ref = db.collection("shipments").doc(docId);
+const docSnap = await ref.get();
+if (docSnap.exists) {
+let data = docSnap.data();
+data.trackingNo = trackingNo;
+data.trackingNumber = trackingNo;
+data.status = "In Transit";
+data.recipient = recipient;
+data.destination = destination;
+data.history = [
+{ date: now, location: "Origin Facility", status: "In Transit", details: "Approved by Admin & Tracking Generated" }
+];
+
+// Save under the official tracking number doc so customer tracking lookup works instantly
+await db.collection("shipments").doc(trackingNo).set(data);
+if (docId !== trackingNo) {
+await ref.delete();
+}
+
+alert(`Shipment approved successfully! Tracking Number generated: ${trackingNo}`);
+loadShipmentsTable();
+}
+} catch (error) {
+console.error("Error approving shipment:", error);
+alert("Failed to approve shipment.");
+}
+}
+
 async function deleteShipment(trackingNo) {
 if (confirm(`Are you sure you want to delete shipment ${trackingNo}?`)) {
 try {
@@ -303,6 +350,21 @@ await db.collection("shipments").doc(trackingNo).delete();
 loadShipmentsTable();
 } catch (error) {
 console.error("Error deleting shipment: ", error);
+}
+}
+}
+
+async function deleteShipmentRecord(docId, trackingNo) {
+const identifier = trackingNo || docId;
+if (confirm(`Are you sure you want to delete shipment ${identifier}?`)) {
+try {
+await db.collection("shipments").doc(docId).delete();
+if (trackingNo && trackingNo !== docId) {
+await db.collection("shipments").doc(trackingNo).delete();
+}
+loadShipmentsTable();
+} catch (error) {
+console.error("Error deleting shipment:", error);
 }
 }
 }
