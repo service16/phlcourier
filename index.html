@@ -44,7 +44,7 @@ const db = firebase.firestore();
 <body class="bg-slate-50 font-sans text-slate-600 antialiased min-h-screen flex flex-col justify-between">
 
 <!-- Top Navigation -->
-<header class="bg-navy-950 text-white border-b border-slate-800 sticky top-0 z-40">
+<header class="bg-navy-950/95 text-white border-b border-slate-800 sticky top-0 z-40 backdrop-blur-md">
 <div class="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
 <div class="flex items-center space-x-3">
 <img src="logo.png" alt="PHL Express Logo" class="h-10 w-10 rounded-xl object-cover shadow-lg shadow-blue-600/30">
@@ -55,19 +55,15 @@ const db = firebase.firestore();
 </div>
 
 <!-- Desktop Nav -->
-<nav class="hidden md:flex items-center space-x-6 text-sm font-medium text-slate-300">
-<a href="index.html" class="hover:text-white transition">Home</a>
+<nav class="hidden md:flex items-center space-x-8 text-sm font-medium text-slate-300">
+<a href="index.html" class="text-white font-semibold transition">Home</a>
 <a href="#services" class="hover:text-white transition">Services</a>
 <a href="#tracking-section" class="hover:text-white transition">Track Shipment</a>
 <a href="contact.html" class="hover:text-white transition">Contact Us</a>
-<div class="h-4 w-[1px] bg-slate-800"></div>
-<a href="login.html" class="hover:text-white transition">Log In</a>
-<a href="signup.html" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-xl transition shadow-md shadow-blue-600/20 font-semibold">Sign Up</a>
 </nav>
 
 <!-- Mobile Menu Button -->
 <div class="md:hidden flex items-center space-x-2">
-<a href="login.html" class="bg-slate-800 text-slate-200 text-xs font-semibold px-3 py-2 rounded-xl">Login</a>
 <button onclick="toggleMobileMenu()" class="text-slate-300 hover:text-white focus:outline-none p-2 text-2xl">
 ☰
 </button>
@@ -80,10 +76,6 @@ const db = firebase.firestore();
 <a href="#services" onclick="toggleMobileMenu()" class="block hover:text-white transition py-1">Services</a>
 <a href="#tracking-section" onclick="toggleMobileMenu()" class="block hover:text-white transition py-1">Track Shipment</a>
 <a href="contact.html" class="block hover:text-white transition py-1">Contact Us</a>
-<div class="border-t border-slate-800 pt-3 space-y-2">
-<a href="login.html" class="block hover:text-white transition py-1">Log In</a>
-<a href="signup.html" class="block bg-blue-600 text-white text-center py-2.5 rounded-xl font-semibold transition shadow-md">Create Account</a>
-</div>
 </div>
 </header>
 
