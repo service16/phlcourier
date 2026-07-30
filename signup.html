@@ -118,17 +118,14 @@ createdAt: new Date().toISOString()
 });
 })
 .then(() => {
-// Send email in the background without blocking the login redirect
-emailjs.send("service_q2z18lj", "jrxtuv9", {
+return emailjs.send("service_q2z18lj", "jrxtuv9", {
 to_name: name,
 to_email: email,
 message_title: "Account Successfully Created!",
 message_body: "Welcome to PHL Express Global Logistics! Your account has been successfully created and approved for shipping management."
-}).catch(err => {
-console.warn("EmailJS notification skipped/failed:", err);
 });
-
-// Successfully logged in and routed to dashboard
+})
+.then(() => {
 window.location.href = "dashboard.html";
 })
 .catch((err) => {
@@ -144,7 +141,7 @@ errorMessage = err.text;
 errorMessage = JSON.stringify(err);
 }
 if (errorMessage === "{}" || errorMessage === "undefined") {
-errorMessage = "Registration failed. Please check your connection and try again.";
+errorMessage = "Registration or email sending failed. Please check your EmailJS template settings.";
 }
 errBox.innerText = errorMessage;
 errBox.classList.remove("hidden");
