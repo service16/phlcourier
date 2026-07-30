@@ -106,7 +106,7 @@ const errBox = document.getElementById("error-box");
 const btn = document.getElementById("submit-btn");
 
 errBox.classList.add("hidden");
-btn.innerText = "Creating account & sending confirmation...";
+btn.innerText = "Creating account...";
 
 auth.createUserWithEmailAndPassword(email, password)
 .then((cred) => {
@@ -118,19 +118,34 @@ createdAt: new Date().toISOString()
 });
 })
 .then(() => {
-return emailjs.send("service_q2z18lj", "jrxtuv9", {
+// Send email in the background without blocking the login redirect
+emailjs.send("service_q2z18lj", "jrxtuv9", {
 to_name: name,
 to_email: email,
 message_title: "Account Successfully Created!",
 message_body: "Welcome to PHL Express Global Logistics! Your account has been successfully created and approved for shipping management."
+}).catch(err => {
+console.warn("EmailJS notification skipped/failed:", err);
 });
-})
-.then(() => {
+
+// Successfully logged in and routed to dashboard
 window.location.href = "dashboard.html";
 })
 .catch((err) => {
 console.error("Full Error Object:", err);
-const errorMessage = err.message || err.text || JSON.stringify(err) || "An unexpected error occurred.";
+let errorMessage = "An unexpected error occurred.";
+if (typeof err === "string") {
+errorMessage = err;
+} else if (err && err.message) {
+errorMessage = err.message;
+} else if (err && err.text) {
+errorMessage = err.text;
+} else {
+errorMessage = JSON.stringify(err);
+}
+if (errorMessage === "{}" || errorMessage === "undefined") {
+errorMessage = "Registration failed. Please check your connection and try again.";
+}
 errBox.innerText = errorMessage;
 errBox.classList.remove("hidden");
 btn.innerText = "Create Account";
