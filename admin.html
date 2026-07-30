@@ -1,21 +1,15 @@
 <!DOCTYPE html>
-<html lang="en" class="scroll-smooth">
+<html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Shipment Control Center | PHL Express Admin</title>
+<title>PHL Express | Admin Portal</title>
 <link rel="icon" type="image/png" href="logo.png">
 <script src="https://cdn.tailwindcss.com"></script>
 
-<!-- Firebase SDKs -->
+<!-- Firebase App Core & Realtime Database SDKs -->
 <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
-
-<!-- EmailJS SDK -->
-<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
-<script type="text/javascript">
-emailjs.init("fpa1DA0DLYaRkVd0o");
-</script>
 
 <script>
 tailwind.config = {
@@ -28,306 +22,297 @@ blue: { 600: '#2563EB', 700: '#1D4ED8' }
 }
 }
 }
+
+// Initialize Firebase Realtime Database
+const firebaseConfig = {
+apiKey: "AIzaSyAp5Xbup9qdNplMzkQPgeu49ZFjq0RLgko",
+authDomain: "phl-courier.firebaseapp.com",
+projectId: "phl-courier",
+databaseURL: "https://phl-courier-default-rtdb.firebaseio.com",
+storageBucket: "phl-courier.firebasestorage.app",
+messagingSenderId: "858130682931",
+appId: "1:858130682931:web:8493a4470a9e0e5827bf46",
+measurementId: "G-5SRRPR6PTY"
+};
+
+firebase.initializeApp(firebaseConfig);
+const db = firebase.database();
 </script>
 </head>
-<body class="bg-slate-950 font-sans text-slate-300 antialiased min-h-screen flex flex-col justify-between selection:bg-amber-500 selection:text-slate-950">
+<body class="bg-slate-100 font-sans text-slate-600 antialiased min-h-screen flex flex-col justify-between">
 
-<!-- Header -->
-<header class="bg-navy-950 border-b border-slate-800 sticky top-0 z-40 backdrop-blur-md bg-opacity-90">
+<!-- ================= LOGIN SCREEN ================= -->
+<div id="login-overlay" class="fixed inset-0 bg-navy-950/90 z-50 flex items-center justify-center p-6 backdrop-blur-md">
+<div class="bg-white max-w-md w-full p-8 rounded-2xl shadow-2xl border border-slate-200 space-y-6">
+<div class="text-center space-y-2">
+<img src="logo.png" alt="Logo" class="h-12 w-12 rounded-xl object-cover mx-auto shadow-md">
+<h2 class="text-xl font-black text-navy-900 tracking-tight">Admin Portal Access</h2>
+<p class="text-xs text-slate-400">Enter your credentials to manage shipments</p>
+</div>
+
+<form onsubmit="handleLogin(event)" class="space-y-4">
+<div class="space-y-1">
+<label class="text-xs font-semibold text-slate-700">Username</label>
+<input type="text" id="admin-user" required placeholder="admin" class="w-full px-4 py-3 rounded-xl border border-slate-200 text-sm focus:outline-none focus:border-blue-600 font-medium">
+</div>
+<div class="space-y-1">
+<label class="text-xs font-semibold text-slate-700">Password</label>
+<input type="password" id="admin-pass" required placeholder="••••••••" class="w-full px-4 py-3 rounded-xl border border-slate-200 text-sm focus:outline-none focus:border-blue-600 font-medium">
+</div>
+<div id="login-error" class="text-rose-600 text-xs font-medium hidden text-center">Invalid username or password.</div>
+<button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3.5 rounded-xl text-sm transition shadow-lg shadow-blue-600/30">
+Login to Dashboard
+</button>
+</form>
+<div class="text-center">
+<a href="index.html" class="text-xs text-slate-400 hover:text-slate-600 transition">← Back to Tracking Home</a>
+</div>
+</div>
+</div>
+
+<!-- ================= ADMIN DASHBOARD ================= -->
+<div id="admin-dashboard" class="hidden flex-col min-h-screen justify-between">
+<!-- Top Bar -->
+<header class="bg-navy-950 text-white border-b border-slate-800 sticky top-0 z-30">
 <div class="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
-<div class="flex items-center space-x-6">
 <div class="flex items-center space-x-3">
 <img src="logo.png" alt="Logo" class="h-10 w-10 rounded-xl object-cover shadow-lg shadow-blue-600/30">
-<div class="flex flex-col">
-<span class="font-black tracking-tight text-lg text-white">PHL EXPRESS</span>
-<span class="text-[10px] tracking-widest text-amber-400 uppercase font-semibold">Admin Operations</span>
+<div>
+<span class="font-black tracking-tight text-lg text-white block leading-none">PHL EXPRESS</span>
+<span class="text-[10px] tracking-widest text-blue-400 uppercase font-semibold">Admin Control Panel</span>
 </div>
-</div>
-<nav class="hidden md:flex space-x-6 text-xs font-medium text-slate-300 pl-4 border-l border-slate-800">
-<a href="index.html" class="hover:text-white transition">Home</a>
-<a href="track.html" class="hover:text-white transition">Track Package</a>
-<a href="dashboard.html" class="hover:text-white transition">Booking Portal</a>
-</nav>
 </div>
 <div class="flex items-center space-x-4">
-<span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
-<span class="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse"></span> System Online
-</span>
-<a href="dashboard.html" class="text-xs bg-blue-600 hover:bg-blue-500 text-white font-bold px-4 py-2.5 rounded-xl transition shadow-lg shadow-blue-600/30 uppercase tracking-wider">
-+ Create Shipment
-</a>
+<span class="text-xs text-slate-400 hidden sm:inline">Session Auto-Lock: <strong id="timer-display" class="text-blue-400 font-mono">2:00</strong></span>
+<button onclick="logoutAdmin()" class="bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 border border-rose-500/30 px-4 py-2 rounded-xl text-xs font-semibold transition">
+Logout
+</button>
 </div>
 </div>
 </header>
 
-<!-- Main Content -->
-<main class="flex-grow max-w-7xl w-full mx-auto px-6 py-10 space-y-8">
-
-<!-- Control Header & Search -->
-<div class="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-navy-900 border border-slate-800 p-6 rounded-3xl shadow-xl">
+<!-- Main Dashboard Content -->
+<main class="max-w-7xl mx-auto px-6 py-10 w-full space-y-10 flex-grow">
+<div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
 <div>
-<h1 class="text-xl font-black tracking-tight text-white">Shipment Control Center</h1>
-<p class="text-xs text-slate-400 mt-0.5">Manage active client deliveries, update transit milestones, and trigger automated alerts.</p>
+<h1 class="text-2xl font-black text-navy-900 tracking-tight">Shipment Management</h1>
+<p class="text-xs text-slate-500">Create new waybills or update checkpoint histories in real-time.</p>
 </div>
-<div class="w-full md:w-72">
-<input type="text" id="searchInput" onkeyup="filterShipments()" placeholder="Search tracking or client..." class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-xs text-white focus:outline-none focus:border-blue-600 transition">
+<button onclick="generateTrackingNumber()" class="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-5 py-2.5 rounded-xl text-xs transition shadow-md shadow-blue-600/30">
++ Create New Shipment
+</button>
+</div>
+
+<!-- Shipment Form Card -->
+<div class="bg-white p-6 sm:p-8 rounded-2xl border border-slate-200 shadow-xl space-y-6">
+<h3 class="font-bold text-navy-900 text-sm uppercase tracking-wider border-b pb-3">New Shipment Details</h3>
+<form id="shipment-form" onsubmit="saveShipment(event)" class="space-y-6">
+<div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+<div class="space-y-1">
+<label class="text-xs font-semibold text-slate-700">Tracking Number</label>
+<input type="text" id="trackingNumber" required class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-xs font-mono uppercase focus:outline-none focus:border-blue-600">
+</div>
+<div class="space-y-1">
+<label class="text-xs font-semibold text-slate-700">Recipient Name</label>
+<input type="text" id="recipient" required placeholder="Full Name" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-xs focus:outline-none focus:border-blue-600">
+</div>
+<div class="space-y-1">
+<label class="text-xs font-semibold text-slate-700">Destination</label>
+<input type="text" id="destination" required placeholder="City, Country" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-xs focus:outline-none focus:border-blue-600">
 </div>
 </div>
 
-<!-- Shipments Table -->
-<div class="bg-navy-900 border border-slate-800 rounded-3xl shadow-xl overflow-hidden">
-<div class="p-6 border-b border-slate-800 flex justify-between items-center">
-<h2 class="text-sm font-black uppercase tracking-wider text-white">Active Database Records</h2>
-<span id="recordCount" class="text-xs text-slate-400 font-medium">Loading records...</span>
+<div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+<div class="space-y-1">
+<label class="text-xs font-semibold text-slate-700">Current Status</label>
+<select id="currentStatus" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-xs focus:outline-none focus:border-blue-600">
+<option value="In Transit">In Transit</option>
+<option value="Out for Delivery">Out for Delivery</option>
+<option value="Delivered">Delivered</option>
+<option value="On Hold">On Hold</option>
+</select>
 </div>
+<div class="space-y-1">
+<label class="text-xs font-semibold text-slate-700">Initial Checkpoint Location</label>
+<input type="text" id="initLocation" value="Main Hub - Central Sorting" required class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-xs focus:outline-none focus:border-blue-600">
+</div>
+</div>
+
+<div class="space-y-1">
+<label class="text-xs font-semibold text-slate-700">Initial Milestone Notes</label>
+<input type="text" id="initDetails" value="Package received and registered into logistics network." required class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-xs focus:outline-none focus:border-blue-600">
+</div>
+
+<button type="submit" class="bg-navy-900 hover:bg-navy-950 text-white font-semibold px-8 py-3 rounded-xl text-xs transition shadow-md">
+Save & Publish Shipment
+</button>
+<span id="save-success" class="text-emerald-600 text-xs font-semibold ml-3 hidden">✓ Shipment successfully created and synced!</span>
+</form>
+</div>
+
+<!-- Existing Shipments Table -->
+<div class="bg-white rounded-2xl border border-slate-200 shadow-xl overflow-hidden space-y-4 p-6">
+<h3 class="font-bold text-navy-900 text-sm uppercase tracking-wider">All Active Shipments</h3>
 <div class="overflow-x-auto">
-<table class="w-full text-left text-xs text-slate-300">
-<thead class="bg-slate-950 text-slate-400 uppercase tracking-wider border-b border-slate-800">
+<table class="w-full text-left text-xs">
+<thead class="bg-slate-50 border-b border-slate-200 text-slate-400 uppercase font-semibold">
 <tr>
-<th class="p-4">Tracking Number</th>
-<th class="p-4">Client Email</th>
-<th class="p-4">Recipient</th>
-<th class="p-4">Destination</th>
-<th class="p-4">Current Status</th>
-<th class="p-4 text-right">Actions</th>
+<th class="p-3">Tracking ID</th>
+<th class="p-3">Recipient</th>
+<th class="p-3">Destination</th>
+<th class="p-3">Status</th>
+<th class="p-3 text-right">Actions</th>
 </tr>
 </thead>
-<tbody id="admin-shipment-list" class="divide-y divide-slate-800">
-<tr>
-<td colspan="6" class="p-8 text-center text-slate-500">Connecting to secure database...</td>
-</tr>
+<tbody id="shipments-table-body" class="divide-y divide-slate-100">
+<!-- Populated dynamically -->
 </tbody>
 </table>
 </div>
 </div>
 </main>
 
-<!-- UPDATE MODAL -->
-<div id="updateModal" class="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm hidden flex items-center justify-center p-4">
-<div class="bg-navy-900 border border-slate-800 w-full max-w-lg rounded-3xl p-6 shadow-2xl space-y-6">
-<div class="flex justify-between items-center border-b border-slate-800 pb-4">
-<div>
-<h3 class="text-sm font-black uppercase tracking-wider text-white">Update Shipment & History</h3>
-<p id="modalTrackingLabel" class="text-xs text-amber-400 font-mono font-bold mt-0.5"></p>
-</div>
-<button onclick="closeUpdateModal()" class="text-slate-400 hover:text-white text-lg font-bold px-2">&times;</button>
-</div>
-
-<form onsubmit="saveShipmentUpdate(event)" class="space-y-4 text-xs">
-<input type="hidden" id="editTrackingNumber">
-<input type="hidden" id="editClientEmail">
-<input type="hidden" id="editClientName">
-
-<div class="space-y-1">
-<label class="text-slate-300 font-medium">Overall Package Status</label>
-<select id="editStatus" required class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-blue-600 transition">
-<option value="Shipment Booked">Shipment Booked</option>
-<option value="Picked Up">Picked Up</option>
-<option value="In Transit">In Transit</option>
-<option value="Customs Clearance">Customs Clearance</option>
-<option value="Out for Delivery">Out for Delivery</option>
-<option value="Successfully Delivered">Successfully Delivered</option>
-</select>
-</div>
-
-<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-<div class="space-y-1">
-<label class="text-slate-300 font-medium">New Milestone Location</label>
-<input type="text" id="milestoneLocation" required placeholder="e.g. Heathrow Hub, London" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-blue-600 transition">
-</div>
-<div class="space-y-1">
-<label class="text-slate-300 font-medium">Milestone Status Description</label>
-<input type="text" id="milestoneNote" required placeholder="e.g. Arrived at sorting facility" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-blue-600 transition">
-</div>
-</div>
-
-<div class="flex items-center space-x-3 pt-2">
-<button type="submit" id="saveUpdateBtn" class="flex-1 bg-blue-600 hover:bg-blue-500 text-white font-bold py-3.5 rounded-xl transition shadow-lg shadow-blue-600/30 uppercase tracking-wider">
-Save & Notify Client
-</button>
-<button type="button" onclick="closeUpdateModal()" class="bg-slate-800 hover:bg-slate-700 text-slate-300 px-5 py-3.5 rounded-xl font-medium transition">
-Cancel
-</button>
-</div>
-</form>
-</div>
-</div>
-
-<footer class="bg-navy-950 text-slate-500 py-6 text-center text-xs border-t border-slate-900">
-&copy; 2026 Enterprise Logistics Solutions. All rights reserved.
+<!-- Footer -->
+<footer class="bg-navy-950 text-slate-400 py-8 border-t border-slate-800 text-xs text-center">
+<p>&copy; 2026 PHL Express Admin Operations.</p>
 </footer>
+</div>
 
+<!-- Script Logic -->
 <script>
-const firebaseConfig = {
-apiKey: "AIzaSyBdqx9c9otXv5i1MMrwnPxDoVkJwDySd4",
-authDomain: "phl-express.firebaseapp.com",
-databaseURL: "https://phl-express-default-rtdb.firebaseio.com",
-projectId: "phl-express",
-storageBucket: "phl-express.appspot.com",
-messagingSenderId: "561028625183",
-appId: "1:561028625183:web:ceb8ba2452a79ecdffb62a",
-measurementId: "G-838P851DXJ"
-};
-firebase.initializeApp(firebaseConfig);
-const db = firebase.database();
+// --- AUTHENTICATION & AUTO-LOGOUT CONFIGURATION ---
+const ADMIN_USER = "admin";
+const ADMIN_PASS = "password123"; // You can customize your password here
+let idleTimeout;
+const IDLE_LIMIT_MS = 2 * 60 * 1000; // Exactly 2 minutes
 
-let allShipmentsData = {};
-
-// Load all shipments in real-time
-db.ref("shipments").on("value", (snapshot) => {
-const table = document.getElementById("admin-shipment-list");
-table.innerHTML = "";
-
-if (!snapshot.exists()) {
-table.innerHTML = `<tr><td colspan="6" class="p-8 text-center text-slate-500">No active shipments in database.</td></tr>`;
-document.getElementById("recordCount").innerText = "0 Records";
-return;
+function checkSession() {
+const isAuth = sessionStorage.getItem("phl_admin_auth");
+if (isAuth === "true") {
+document.getElementById("login-overlay").classList.add("hidden");
+document.getElementById("admin-dashboard").classList.remove("hidden");
+document.getElementById("admin-dashboard").classList.add("flex");
+startIdleTimer();
+loadAllShipments();
+} else {
+document.getElementById("login-overlay").classList.remove("hidden");
+document.getElementById("admin-dashboard").classList.add("hidden");
+document.getElementById("admin-dashboard").classList.remove("flex");
+}
 }
 
-allShipmentsData = snapshot.val();
-renderTable(allShipmentsData);
+function handleLogin(e) {
+e.preventDefault();
+const u = document.getElementById("admin-user").value.trim();
+const p = document.getElementById("admin-pass").value.trim();
+
+if (u === ADMIN_USER && p === ADMIN_PASS) {
+sessionStorage.setItem("phl_admin_auth", "true");
+document.getElementById("login-error").classList.add("hidden");
+checkSession();
+} else {
+document.getElementById("login-error").classList.remove("hidden");
+}
+}
+
+function logoutAdmin() {
+sessionStorage.removeItem("phl_admin_auth");
+clearTimeout(idleTimeout);
+checkSession();
+}
+
+// Inactivity Tracker
+function resetIdleTimer() {
+clearTimeout(idleTimeout);
+if (sessionStorage.getItem("phl_admin_auth") === "true") {
+idleTimeout = setTimeout(() => {
+alert("You have been automatically logged out due to 2 minutes of inactivity.");
+logoutAdmin();
+}, IDLE_LIMIT_MS);
+}
+}
+
+// Listen to user activity events
+window.onload = () => {
+checkSession();
+['mousemove', 'keypress', 'click', 'scroll', 'touchstart'].forEach(event => {
+window.addEventListener(event, resetIdleTimer);
 });
+generateTrackingNumber();
+};
 
-function renderTable(dataObj) {
-const table = document.getElementById("admin-shipment-list");
-table.innerHTML = "";
-let count = 0;
-
-Object.keys(dataObj).forEach((trackingNum) => {
-const s = dataObj[trackingNum];
-count++;
-
-let badgeColor = "bg-blue-600/10 text-blue-400 border-blue-600/20";
-const statusLower = (s.currentStatus || '').toLowerCase();
-if (statusLower.includes('transit')) {
-badgeColor = "bg-amber-500/10 text-amber-400 border-amber-500/20";
-} else if (statusLower.includes('delivered')) {
-badgeColor = "bg-emerald-500/10 text-emerald-400 border-emerald-500/20";
+// --- SHIPMENT MANAGEMENT LOGIC ---
+function generateTrackingNumber() {
+const randomNum = Math.floor(100000 + Math.random() * 900000);
+document.getElementById("trackingNumber").value = "PHL-" + randomNum;
 }
 
-table.innerHTML += `
-<tr class="hover:bg-slate-950/50 transition">
-<td class="p-4 font-mono font-bold text-amber-400">${s.trackingNumber}</td>
-<td class="p-4 text-slate-300">${s.clientEmail || 'N/A'}</td>
-<td class="p-4 text-white font-medium">${s.recipient}</td>
-<td class="p-4 text-slate-300">${s.destination}</td>
-<td class="p-4"><span class="inline-block border px-2.5 py-1 rounded-lg font-semibold text-[10px] ${badgeColor}">${s.currentStatus || 'Booked'}</span></td>
-<td class="p-4 text-right space-x-2">
-<button onclick="openUpdateModal('${s.trackingNumber}')" class="bg-blue-600/10 border border-blue-600/20 text-blue-400 hover:bg-blue-600 hover:text-white px-3 py-1.5 rounded-lg transition font-medium">Update</button>
-<button onclick="deleteShipment('${s.trackingNumber}')" class="bg-rose-500/10 border border-rose-500/20 text-rose-400 hover:bg-rose-500 hover:text-white px-3 py-1.5 rounded-lg transition font-medium">Delete</button>
+function saveShipment(e) {
+e.preventDefault();
+const trackingNumber = document.getElementById("trackingNumber").value.trim().toUpperCase();
+const recipient = document.getElementById("recipient").value.trim();
+const destination = document.getElementById("destination").value.trim();
+const currentStatus = document.getElementById("currentStatus").value;
+const initLocation = document.getElementById("initLocation").value.trim();
+const initDetails = document.getElementById("initDetails").value.trim();
+
+const now = new Date().toLocaleString();
+
+const shipmentData = {
+trackingNumber: trackingNumber,
+recipient: recipient,
+destination: destination,
+currentStatus: currentStatus,
+history: [
+{
+status: currentStatus,
+location: initLocation,
+details: initDetails,
+timestamp: now
+}
+]
+};
+
+db.ref("shipments/" + trackingNumber).set(shipmentData).then(() => {
+const successMsg = document.getElementById("save-success");
+successMsg.classList.remove("hidden");
+setTimeout(() => successMsg.classList.add("hidden"), 4000);
+document.getElementById("shipment-form").reset();
+generateTrackingNumber();
+loadAllShipments();
+}).catch((err) => {
+alert("Error saving shipment: " + err.message);
+});
+}
+
+function loadAllShipments() {
+const tbody = document.getElementById("shipments-table-body");
+db.ref("shipments").on("value", (snapshot) => {
+tbody.innerHTML = "";
+if (snapshot.exists()) {
+snapshot.forEach((childSnapshot) => {
+const s = childSnapshot.val();
+tbody.innerHTML += `
+<tr class="hover:bg-slate-50 transition">
+<td class="p-3 font-mono font-bold text-navy-900">${s.trackingNumber}</td>
+<td class="p-3 font-semibold">${s.recipient}</td>
+<td class="p-3">${s.destination}</td>
+<td class="p-3"><span class="px-2 py-1 bg-blue-50 text-blue-700 font-semibold rounded text-[10px]">${s.currentStatus}</span></td>
+<td class="p-3 text-right">
+<button onclick="deleteShipment('${s.trackingNumber}')" class="text-rose-600 hover:underline font-semibold">Delete</button>
 </td>
 </tr>
 `;
 });
-
-document.getElementById("recordCount").innerText = `${count} Record${count === 1 ? '' : 's'}`;
-}
-
-function filterShipments() {
-const query = document.getElementById("searchInput").value.toLowerCase();
-const filtered = {};
-
-Object.keys(allShipmentsData).forEach((key) => {
-const s = allShipmentsData[key];
-if (
-s.trackingNumber.toLowerCase().includes(query) ||
-(s.clientEmail && s.clientEmail.toLowerCase().includes(query)) ||
-s.recipient.toLowerCase().includes(query) ||
-s.destination.toLowerCase().includes(query)
-) {
-filtered[key] = s;
+} else {
+tbody.innerHTML = `<tr><td colspan="5" class="p-4 text-center text-slate-400">No shipments found in database.</td></tr>`;
 }
 });
-
-renderTable(filtered);
 }
 
-function openUpdateModal(trackingNumber) {
-const s = allShipmentsData[trackingNumber];
-if (!s) return;
-
-document.getElementById("editTrackingNumber").value = s.trackingNumber;
-document.getElementById("editClientEmail").value = s.clientEmail || "";
-document.getElementById("editClientName").value = s.clientName || "Valued Client";
-document.getElementById("modalTrackingLabel").innerText = `Tracking ID: ${s.trackingNumber}`;
-document.getElementById("editStatus").value = s.currentStatus || "In Transit";
-document.getElementById("milestoneLocation").value = "";
-document.getElementById("milestoneNote").value = "";
-
-document.getElementById("updateModal").classList.remove("hidden");
-}
-
-function closeUpdateModal() {
-document.getElementById("updateModal").classList.add("hidden");
-}
-
-function saveShipmentUpdate(e) {
-e.preventDefault();
-
-const trackingNumber = document.getElementById("editTrackingNumber").value;
-const clientEmail = document.getElementById("editClientEmail").value;
-const clientName = document.getElementById("editClientName").value;
-const newStatus = document.getElementById("editStatus").value;
-const location = document.getElementById("milestoneLocation").value.trim();
-const note = document.getElementById("milestoneNote").value.trim();
-
-const btn = document.getElementById("saveUpdateBtn");
-btn.innerText = "Updating & notifying client...";
-btn.disabled = true;
-
-const shipmentRef = db.ref("shipments/" + trackingNumber);
-
-shipmentRef.once("value").then((snapshot) => {
-const currentData = snapshot.val();
-let historyArray = currentData.history || [];
-
-// Append new history milestone
-historyArray.push({
-status: note,
-location: location,
-timestamp: new Date().toLocaleString()
-});
-
-shipmentRef.update({
-currentStatus: newStatus,
-history: historyArray
-}).then(() => {
-// Send EmailJS notification if client email exists
-if (clientEmail) {
-const updateMessage = `Hello ${clientName},\n\nYour shipment (${trackingNumber}) status has been updated.\n\nCurrent Status: ${newStatus}\nLatest Milestone: ${note} at ${location}.\n\nYou can track full progress on our website anytime.`;
-
-emailjs.send("service_q2z18lj", "template_r8be1pc", {
-to_name: clientName,
-to_email: clientEmail,
-subject_title: `Shipment Update (#${trackingNumber})`,
-message: updateMessage
-}).catch(err => {
-console.warn("Email warning:", err);
-});
-}
-
-alert("Shipment status and history updated successfully!");
-closeUpdateModal();
-btn.innerText = "Save & Notify Client";
-btn.disabled = false;
-});
-}).catch((err) => {
-console.error("Error updating:", err);
-alert("Failed to update shipment. Please try again.");
-btn.innerText = "Save & Notify Client";
-btn.disabled = false;
-});
-}
-
-function deleteShipment(trackingNumber) {
-if (confirm(`Are you sure you want to permanently delete tracking record ${trackingNumber}?`)) {
-db.ref("shipments/" + trackingNumber).remove()
-.then(() => {
-alert("Record deleted successfully.");
-})
-.catch((err) => {
-alert("Error deleting record: " + err.message);
-});
+function deleteShipment(trackingNo) {
+if (confirm("Are you sure you want to delete shipment " + trackingNo + "?")) {
+db.ref("shipments/" + trackingNo).remove();
 }
 }
 </script>
