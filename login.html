@@ -102,7 +102,16 @@ const btn = document.getElementById("submit-btn");
 errBox.classList.add("hidden");
 btn.innerText = "Logging in...";
 
-auth.signInWithEmailAndPassword(email, password)
+/ Inside your successful login handler in login.html
+const loginParams = {
+to_name: user.email.split('@')[0],
+to_email: user.email,
+subject_title: "Security Alert: New Login",
+message: `A new login to your account was detected on ${new Date().toLocaleString()}. If this was you, you can safely ignore this message.`
+};
+
+emailjs.send("service_q2z18lj", "template_r8be1pc", loginParams, "ovl2Qx-zRePZDamA9");
+
 .then((cred) => {
 // Fetch user profile data to personalize login security alert email
 db.ref("users/" + cred.user.uid).once("value").then((snapshot) => {
