@@ -9,7 +9,7 @@
 
 <!-- Firebase SDKs -->
 <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
 
 <!-- EmailJS SDK -->
@@ -139,6 +139,7 @@ Book Shipment & Send Tracking Number via Email
 const firebaseConfig = {
 apiKey: "AIzaSyBdqx9c9otXv5Si1MMrwnPxDoVkJWdYSd4",
 authDomain: "phl-express.firebaseapp.com",
+databaseURL: "https://phl-express-default-rtdb.firebaseio.com",
 projectId: "phl-express",
 storageBucket: "phl-express.firebasestorage.app",
 messagingSenderId: "561028625183",
@@ -147,7 +148,7 @@ measurementId: "G-838P851DXJ"
 };
 firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
-const db = firebase.firestore();
+const db = firebase.database();
 
 let clientFullName = "";
 
@@ -158,9 +159,10 @@ window.location.href = "login.html";
 const email = user.email;
 document.getElementById("profile-email").innerText = email;
 
-db.collection("users").doc(user.uid).get().then((doc) => {
-if (doc.exists && doc.data().fullName) {
-clientFullName = doc.data().fullName;
+db.ref("users/" + user.uid).once("value").then((snapshot) => {
+const data = snapshot.val();
+if (data && data.fullName) {
+clientFullName = data.fullName;
 document.getElementById("profile-name").innerText = clientFullName;
 document.getElementById("user-display-name").innerText = `Hi, ${clientFullName}`;
 } else {
@@ -179,19 +181,21 @@ loadUserShipments(user.uid);
 });
 
 function loadUserShipments(uid) {
-db.collection("shipments").where("userId", "==", uid).get()
+db.ref("shipments").orderByChild("userId").equalTo(uid).once("value")
 .then((snapshot) => {
 const tbody = document.getElementById("shipments-table-body");
-document.getElementById("shipment-count").innerText = `${snapshot.size} shipments found`;
 tbody.innerHTML = "";
 
-if (snapshot.empty) {
+if (!snapshot.exists()) {
+document.getElementById("shipment-count").innerText = "0 shipments found";
 tbody.innerHTML = `<tr><td colspan="5" class="p-6 text-center text-slate-500">No shipments created yet. Book your first shipment above!</td></tr>`;
 return;
 }
 
-snapshot.forEach((doc) => {
-const s = doc.data();
+let count = 0;
+snapshot.forEach((childSnapshot) => {
+count++;
+const s = childSnapshot.val();
 let statusBadge = '';
 if(s.status === 'Approved') {
 statusBadge = `<span class="bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 px-2.5 py-1 rounded-full font-medium">Approved</span>`;
@@ -213,6 +217,7 @@ tbody.innerHTML += `
 </tr>
 `;
 });
+document.getElementById("shipment-count").innerText = `${count} shipments found`;
 })
 .catch((err) => {
 console.error("Error loading shipments:", err);
@@ -240,7 +245,8 @@ status: "Pending Approval",
 createdAt: new Date().toISOString()
 };
 
-db.collection("shipments").add(shipmentData)
+const newShipmentRef = db.ref("shipments").push();
+newShipmentRef.set(shipmentData)
 .then(() => {
 return emailjs.send("service_q2z18lj", "jrxtuv9", {
 to_name: clientFullName || user.email,
