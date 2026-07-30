@@ -193,11 +193,15 @@ history: updatedHistory
 });
 })
 .then(() => {
-// Send status update email using unified 'message' variable
-const updateMessage = `Hello ${recipient},\n\nYour package (${trackingNumber}) has a new transit update!\n\nCurrent Status: ${newStatus}\nLocation: ${location}\n\nLog in to your client portal to view your complete package timeline.`;
-
-return emailjs.send("service_q2z18lj", "jrxtuv9", {
+const updateParams = {
 to_name: recipient,
+to_email: clientEmail,
+subject_title: `Shipment Status Update (#${trackingNumber})`,
+message: `Your shipment status has been updated.\n\nCurrent Status: ${newStatus}\nLocation: ${location}`
+};
+
+return emailjs.send("service_q2z18lj", "template_r8be1pc", updateParams, "ovl2Qx-zRePZDamA9");
+})
 to_email: clientEmail,
 message: updateMessage
 });
