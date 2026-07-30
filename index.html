@@ -236,7 +236,7 @@ Tracking number not found in our database. Please verify your tracking ID and tr
 </section>
 
 <!-- Footer -->
-<footer class="bg-navy-950 text-slate-400 py-12 border-t border-slate-800">
+<footer class="bg-navy-950 text-slate-400 py-12 border-t border-slate-800 mt-auto">
 <div class="max-w-7xl mx-auto px-6 flex flex-col md:flex-row justify-between items-center gap-6 text-xs">
 <div class="flex items-center space-x-3">
 <div class="w-6 h-6 rounded-lg bg-blue-600 flex items-center justify-center font-bold text-white text-xs">P</div>
@@ -276,9 +276,9 @@ let found = doc.data();
 errorBox.classList.add("hidden");
 resultBox.classList.remove("hidden");
 
-document.getElementById("res-tracking").innerText = found.trackingNo;
-document.getElementById("res-recipient").innerText = found.recipient;
-document.getElementById("res-destination").innerText = found.destination;
+document.getElementById("res-tracking").innerText = found.trackingNo || found.trackingNumber || query;
+document.getElementById("res-recipient").innerText = found.recipient || found.recipientName || 'N/A';
+document.getElementById("res-destination").innerText = found.destination || 'N/A';
 
 const badge = document.getElementById("res-status-badge");
 badge.innerText = found.status;
@@ -323,24 +323,5 @@ console.error("Error fetching shipment:", error);
 });
 }
 </script>
-</body>
-</html>
-<!-- Your existing code and content stays above this -->
-
-<!-- Footer with Legal Links for Trust Verification -->
-<footer class="bg-slate-900 text-slate-400 text-xs py-8 px-6 mt-20 border-t border-slate-800">
-<div class="max-w-7xl mx-auto flex flex-col sm:flex-row justify-between items-center gap-4">
-<div>
-<p class="font-bold text-slate-200">PHL Express Logistics Inc.</p>
-<p>100 Logistics Parkway, Suite 400, New York, NY</p>
-</div>
-<div class="flex space-x-6">
-<a href="contact.html" class="hover:text-amber-400 transition">Contact Us</a>
-<a href="privacy.html" class="hover:text-amber-400 transition">Privacy Policy</a>
-<a href="terms.html" class="hover:text-amber-400 transition">Terms of Service</a>
-</div>
-</div>
-</footer>
-
 </body>
 </html>
