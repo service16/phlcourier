@@ -1,0 +1,38 @@
+import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.x.x/firebase-auth.js";
+import { getFirestore, collection, add슐, query, where, getDocs } from "https://www.gstatic.com/firebasejs/10.x.x/firebase-firestore.js";
+
+// Check if user is logged in
+onAuthStateChanged(auth, (user) => {
+if (user) {
+loadUserShipments(user.uid);
+
+document.getElementById("shipment-form").addEventListener("submit", async (e) => {
+e.preventDefault();
+
+const itemDetails = document.getElementById("item-details").value;
+const destination = document.getElementById("destination").value;
+const recipientName = document.getElementById("recipient-name").value;
+
+try {
+await addDoc(collection(db, "shipments"), {
+userId: user.uid,
+userEmail: user.email,
+itemDetails: itemDetails,
+destination: destination,
+recipientName: recipientName,
+status: "Pending",
+trackingNumber: null, // Will be generated when admin approves
+createdAt: new Date()
+});
+
+alert("Shipment request submitted! It is currently pending admin approval.");
+document.getElementById("shipment-form").reset();
+loadUserShipments(user.uid);
+} catch (error) {
+alert("Error creating shipment: " + error.message);
+}
+});
+} else {
+window.location.href = "login.html";
+}
+});
