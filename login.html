@@ -7,10 +7,16 @@
 <link rel="icon" type="image/png" href="logo.png">
 <script src="https://cdn.tailwindcss.com"></script>
 
-<!-- Firebase App Core & Firestore Compat SDKs -->
+<!-- Firebase SDKs -->
 <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
+
+<!-- EmailJS SDK -->
+<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+<script type="text/javascript">
+emailjs.init("fpalDA0DLYaRkVD0o");
+</script>
 
 <script>
 tailwind.config = {
@@ -25,9 +31,8 @@ blue: { 600: '#2563EB', 700: '#1D4ED8' }
 }
 </script>
 </head>
-<body class="bg-slate-950 font-sans text-slate-600 antialiased min-h-screen flex flex-col justify-between">
+<body class="bg-slate-950 font-sans text-slate-300 antialiased min-h-screen flex flex-col justify-between">
 
-<!-- Top Bar -->
 <header class="bg-navy-950 border-b border-slate-800">
 <div class="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
 <a href="index.html" class="flex items-center space-x-3">
@@ -37,16 +42,15 @@ blue: { 600: '#2563EB', 700: '#1D4ED8' }
 <span class="text-[10px] tracking-widest text-blue-400 uppercase font-semibold">Global Logistics</span>
 </div>
 </a>
-<a href="signup.html" class="text-xs text-slate-300 hover:text-white transition font-medium">New user? <span class="text-blue-400 underline">Sign Up</span></a>
+<a href="signup.html" class="text-xs text-slate-300 hover:text-white transition font-medium">Don't have an account? <span class="text-blue-400 underline">Sign Up</span></a>
 </div>
 </header>
 
-<!-- Main Login Form Container -->
 <main class="flex-grow flex items-center justify-center px-4 py-12">
 <div class="bg-navy-900 border border-slate-800 p-8 rounded-3xl shadow-2xl max-w-md w-full space-y-6 text-white">
 <div class="space-y-2 text-center">
 <h1 class="text-2xl font-black tracking-tight">Welcome Back</h1>
-<p class="text-xs text-slate-400">Log in to manage your shipments and account details.</p>
+<p class="text-xs text-slate-400">Log in to manage your shipments and track packages.</p>
 </div>
 
 <div id="error-box" class="bg-rose-500/10 border border-rose-500/20 text-rose-400 text-xs p-3 rounded-xl hidden"></div>
@@ -69,7 +73,6 @@ Log In
 </div>
 </main>
 
-<!-- Footer -->
 <footer class="bg-navy-950 text-slate-500 py-6 text-center text-xs border-t border-slate-900">
 &copy; 2026 PHL Express. All rights reserved.
 </footer>
@@ -78,6 +81,7 @@ Log In
 const firebaseConfig = {
 apiKey: "AIzaSyBdqx9c9otXv5Si1MMrwnPxDoVkJWdYSd4",
 authDomain: "phl-express.firebaseapp.com",
+databaseURL: "https://phl-express-default-rtdb.firebaseio.com",
 projectId: "phl-express",
 storageBucket: "phl-express.firebasestorage.app",
 messagingSenderId: "561028625183",
@@ -98,11 +102,20 @@ errBox.classList.add("hidden");
 btn.innerText = "Logging in...";
 
 auth.signInWithEmailAndPassword(email, password)
-.then(() => {
+.then((cred) => {
+// Send login alert email via EmailJS in the background
+emailjs.send("service_q2z18lj", "jrxtuv9", {
+to_name: cred.user.displayName || "Valued Client",
+to_email: cred.user.email,
+message_title: "New Login Alert",
+message_body: `Hello, your PHL Express account was just accessed from a web browser on ${new Date().toLocaleString()}. If this was you, you can safely ignore this email.`
+}).catch(err => console.log("Login email notification skipped"));
+
 window.location.href = "dashboard.html";
 })
 .catch((err) => {
-errBox.innerText = err.message;
+console.error("Login error:", err);
+errBox.innerText = err.message || "Failed to log in. Please check your credentials.";
 errBox.classList.remove("hidden");
 btn.innerText = "Log In";
 });
@@ -110,4 +123,3 @@ btn.innerText = "Log In";
 </script>
 </body>
 </html>
- 
