@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>PHL Express | Admin Portal</title>
+<title>PHL Express | Professional Admin Portal</title>
 <link rel="icon" type="image/png" href="logo.png">
 <script src="https://cdn.tailwindcss.com"></script>
 
@@ -23,7 +23,7 @@ blue: { 600: '#2563EB', 700: '#1D4ED8' }
 }
 }
 
-// Initialize Firebase Realtime Database (Corrected Project ID: phl-express)
+// Initialize Firebase Realtime Database
 const firebaseConfig = {
 apiKey: "AIzaSyAp5Xbup9qdNplMzkQPgeu49ZFjq0RLgko",
 authDomain: "phl-express.firebaseapp.com",
@@ -91,21 +91,34 @@ Logout
 </div>
 </header>
 
+<!-- Navigation Tabs Bar -->
+<div class="bg-white border-b border-slate-200 shadow-sm sticky top-20 z-20">
+<div class="max-w-7xl mx-auto px-6 flex space-x-8">
+<button onclick="switchTab('create')" id="btn-tab-create" class="py-4 text-xs font-bold uppercase tracking-wider border-b-2 border-blue-600 text-blue-600 transition">
++ Create New Shipment
+</button>
+<button onclick="switchTab('manage')" id="btn-tab-manage" class="py-4 text-xs font-bold uppercase tracking-wider border-b-2 border-transparent text-slate-400 hover:text-slate-600 transition">
+Manage & Update History
+</button>
+</div>
+</div>
+
 <!-- Main Dashboard Content -->
 <main class="max-w-7xl mx-auto px-6 py-10 w-full space-y-10 flex-grow">
-<div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+
+<!-- TAB 1: CREATE SHIPMENT -->
+<div id="view-create" class="space-y-6">
+<div class="flex justify-between items-center">
 <div>
-<h1 class="text-2xl font-black text-navy-900 tracking-tight">Shipment Management</h1>
-<p class="text-xs text-slate-500">Create new waybills or update checkpoint histories in real-time.</p>
+<h1 class="text-2xl font-black text-navy-900 tracking-tight">Create New Shipment</h1>
+<p class="text-xs text-slate-500">Generate a unique waybill and register initial package details.</p>
 </div>
 <button onclick="generateTrackingNumber()" class="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-5 py-2.5 rounded-xl text-xs transition shadow-md shadow-blue-600/30">
-+ Generate New ID
+Refresh ID
 </button>
 </div>
 
-<!-- Shipment Form Card -->
 <div class="bg-white p-6 sm:p-8 rounded-2xl border border-slate-200 shadow-xl space-y-6">
-<h3 class="font-bold text-navy-900 text-sm uppercase tracking-wider border-b pb-3">New Shipment Details</h3>
 <form id="shipment-form" onsubmit="saveShipment(event)" class="space-y-6">
 <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
 <div class="space-y-1">
@@ -124,9 +137,79 @@ Logout
 
 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
 <div class="space-y-1">
-<label class="text-xs font-semibold text-slate-700">Current Professional Status</label>
+<label class="text-xs font-semibold text-slate-700">Initial Status</label>
 <select id="currentStatus" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-xs focus:outline-none focus:border-blue-600 font-medium">
 <option value="Order Created / Label Generated">Order Created / Label Generated</option>
+<option value="Package Received at Origin Facility">Package Received at Origin Facility</option>
+<option value="In Transit - Export Processing">In Transit - Export Processing</option>
+</select>
+</div>
+<div class="space-y-1">
+<label class="text-xs font-semibold text-slate-700">Initial Checkpoint Location</label>
+<input type="text" id="initLocation" value="Main Hub - Central Sorting Facility" required class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-xs focus:outline-none focus:border-blue-600">
+</div>
+</div>
+
+<div class="space-y-1">
+<label class="text-xs font-semibold text-slate-700">Milestone Notes</label>
+<input type="text" id="initDetails" value="Package successfully registered and dispatched into global network." required class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-xs focus:outline-none focus:border-blue-600">
+</div>
+
+<div class="flex items-center pt-2">
+<button type="submit" id="submit-btn" class="bg-navy-900 hover:bg-navy-950 text-white font-semibold px-8 py-3 rounded-xl text-xs transition shadow-md">
+Publish New Shipment
+</button>
+<span id="save-success" class="text-emerald-600 text-xs font-semibold ml-3 hidden">✓ Shipment successfully created!</span>
+</div>
+</form>
+</div>
+</div>
+
+<!-- TAB 2: MANAGE & UPDATE HISTORY -->
+<div id="view-manage" class="hidden space-y-6">
+<div>
+<h1 class="text-2xl font-black text-navy-900 tracking-tight">Manage Shipments & Update History</h1>
+<p class="text-xs text-slate-500">View active waybills, append checkpoint logs, or remove shipments.</p>
+</div>
+
+<div class="bg-white rounded-2xl border border-slate-200 shadow-xl overflow-hidden p-6 space-y-4">
+<div class="overflow-x-auto">
+<table class="w-full text-left text-xs">
+<thead class="bg-slate-50 border-b border-slate-200 text-slate-400 uppercase font-semibold">
+<tr>
+<th class="p-3">Tracking ID</th>
+<th class="p-3">Recipient</th>
+<th class="p-3">Destination</th>
+<th class="p-3">Current Status</th>
+<th class="p-3 text-right">Actions</th>
+</tr>
+</thead>
+<tbody id="shipments-table-body" class="divide-y divide-slate-100">
+<!-- Populated dynamically -->
+</tbody>
+</table>
+</div>
+</div>
+</div>
+
+</main>
+
+<!-- ================= UPDATE HISTORY MODAL ================= -->
+<div id="history-modal" class="fixed inset-0 bg-navy-950/80 z-50 hidden flex items-center justify-center p-4 backdrop-blur-sm">
+<div class="bg-white max-w-lg w-full p-8 rounded-2xl shadow-2xl border border-slate-200 space-y-6">
+<div class="flex justify-between items-center border-b pb-4">
+<div>
+<h3 class="font-black text-navy-900 text-base">Update Shipment History</h3>
+<p id="modal-tracking-id" class="text-xs font-mono text-blue-600 font-bold"></p>
+</div>
+<button onclick="closeHistoryModal()" class="text-slate-400 hover:text-slate-600 font-bold text-lg">✕</button>
+</div>
+
+<form onsubmit="saveNewCheckpoint(event)" class="space-y-4">
+<input type="hidden" id="modal-target-id">
+<div class="space-y-1">
+<label class="text-xs font-semibold text-slate-700">New Status Stage</label>
+<select id="update-status" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-xs focus:outline-none focus:border-blue-600 font-medium">
 <option value="Package Received at Origin Facility">Package Received at Origin Facility</option>
 <option value="In Transit - Export Processing">In Transit - Export Processing</option>
 <option value="Arrived at International Transit Hub">Arrived at International Transit Hub</option>
@@ -138,46 +221,21 @@ Logout
 </select>
 </div>
 <div class="space-y-1">
-<label class="text-xs font-semibold text-slate-700">Initial Checkpoint Location</label>
-<input type="text" id="initLocation" value="Main Hub - Central Sorting Facility" required class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-xs focus:outline-none focus:border-blue-600">
+<label class="text-xs font-semibold text-slate-700">Current Checkpoint Location</label>
+<input type="text" id="update-location" required placeholder="e.g. London Heathrow Transit Hub" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-xs focus:outline-none focus:border-blue-600">
 </div>
-</div>
-
 <div class="space-y-1">
-<label class="text-xs font-semibold text-slate-700">Initial Milestone Notes</label>
-<input type="text" id="initDetails" value="Package successfully registered and dispatched into global network." required class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-xs focus:outline-none focus:border-blue-600">
+<label class="text-xs font-semibold text-slate-700">Checkpoint Milestone Notes</label>
+<textarea id="update-details" rows="3" required placeholder="Package cleared customs and loaded onto local distribution truck." class="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 text-xs focus:outline-none focus:border-blue-600"></textarea>
 </div>
 
-<div class="flex items-center pt-2">
-<button type="submit" id="submit-btn" class="bg-navy-900 hover:bg-navy-950 text-white font-semibold px-8 py-3 rounded-xl text-xs transition shadow-md">
-Save & Publish Shipment
-</button>
-<span id="save-success" class="text-emerald-600 text-xs font-semibold ml-3 hidden">✓ Shipment successfully created and synced!</span>
+<div class="flex justify-end space-x-3 pt-2">
+<button type="button" onclick="closeHistoryModal()" class="px-5 py-2.5 rounded-xl border border-slate-200 text-xs font-semibold text-slate-600 hover:bg-slate-50 transition">Cancel</button>
+<button type="submit" id="modal-submit-btn" class="px-6 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold transition shadow-md">Append Checkpoint</button>
 </div>
 </form>
 </div>
-
-<!-- Existing Shipments Table -->
-<div class="bg-white rounded-2xl border border-slate-200 shadow-xl overflow-hidden space-y-4 p-6">
-<h3 class="font-bold text-navy-900 text-sm uppercase tracking-wider">All Active Shipments</h3>
-<div class="overflow-x-auto">
-<table class="w-full text-left text-xs">
-<thead class="bg-slate-50 border-b border-slate-200 text-slate-400 uppercase font-semibold">
-<tr>
-<th class="p-3">Tracking ID</th>
-<th class="p-3">Recipient</th>
-<th class="p-3">Destination</th>
-<th class="p-3">Status</th>
-<th class="p-3 text-right">Actions</th>
-</tr>
-</thead>
-<tbody id="shipments-table-body" class="divide-y divide-slate-100">
-<!-- Populated dynamically -->
-</tbody>
-</table>
 </div>
-</div>
-</main>
 
 <!-- Footer -->
 <footer class="bg-navy-950 text-slate-400 py-8 border-t border-slate-800 text-xs text-center">
@@ -245,6 +303,26 @@ window.addEventListener(event, resetIdleTimer);
 generateTrackingNumber();
 };
 
+function switchTab(tab) {
+const createView = document.getElementById("view-create");
+const manageView = document.getElementById("view-manage");
+const btnCreate = document.getElementById("btn-tab-create");
+const btnManage = document.getElementById("btn-tab-manage");
+
+if (tab === 'create') {
+createView.classList.remove("hidden");
+manageView.classList.add("hidden");
+btnCreate.className = "py-4 text-xs font-bold uppercase tracking-wider border-b-2 border-blue-600 text-blue-600 transition";
+btnManage.className = "py-4 text-xs font-bold uppercase tracking-wider border-b-2 border-transparent text-slate-400 hover:text-slate-600 transition";
+} else {
+createView.classList.add("hidden");
+manageView.classList.remove("hidden");
+btnManage.className = "py-4 text-xs font-bold uppercase tracking-wider border-b-2 border-blue-600 text-blue-600 transition";
+btnCreate.className = "py-4 text-xs font-bold uppercase tracking-wider border-b-2 border-transparent text-slate-400 hover:text-slate-600 transition";
+loadAllShipments();
+}
+}
+
 function generateTrackingNumber() {
 const randomNum = Math.floor(100000 + Math.random() * 900000);
 document.getElementById("trackingNumber").value = "PHL-" + randomNum;
@@ -253,7 +331,7 @@ document.getElementById("trackingNumber").value = "PHL-" + randomNum;
 function saveShipment(e) {
 e.preventDefault();
 const submitBtn = document.getElementById("submit-btn");
-submitBtn.innerText = "Publishing Shipment...";
+submitBtn.innerText = "Publishing...";
 submitBtn.disabled = true;
 
 const trackingNumber = document.getElementById("trackingNumber").value.trim().toUpperCase();
@@ -277,36 +355,16 @@ timestamp: now
 }]
 };
 
-let finished = false;
-
-const safetyTimer = setTimeout(() => {
-if (!finished) {
-finished = true;
-submitBtn.innerText = "Save & Publish Shipment";
-submitBtn.disabled = false;
-alert("Connection timed out. Please check your network connection.");
-}
-}, 5000);
-
 db.ref("shipments/" + trackingNumber).set(shipmentData).then(() => {
-if (finished) return;
-finished = true;
-clearTimeout(safetyTimer);
-
-submitBtn.innerText = "Save & Publish Shipment";
+submitBtn.innerText = "Publish New Shipment";
 submitBtn.disabled = false;
 const successMsg = document.getElementById("save-success");
 successMsg.classList.remove("hidden");
 setTimeout(() => successMsg.classList.add("hidden"), 4000);
 document.getElementById("shipment-form").reset();
 generateTrackingNumber();
-loadAllShipments();
 }).catch((err) => {
-if (finished) return;
-finished = true;
-clearTimeout(safetyTimer);
-
-submitBtn.innerText = "Save & Publish Shipment";
+submitBtn.innerText = "Publish New Shipment";
 submitBtn.disabled = false;
 alert("Firebase Error: " + err.message);
 });
@@ -325,14 +383,63 @@ tbody.innerHTML += `
 <td class="p-3 font-semibold">${s.recipient}</td>
 <td class="p-3">${s.destination}</td>
 <td class="p-3"><span class="px-2 py-1 bg-blue-50 text-blue-700 font-semibold rounded text-[10px]">${s.currentStatus}</span></td>
-<td class="p-3 text-right">
+<td class="p-3 text-right space-x-2">
+<button onclick="openHistoryModal('${s.trackingNumber}')" class="text-blue-600 hover:underline font-semibold">Update History</button>
 <button onclick="deleteShipment('${s.trackingNumber}')" class="text-rose-600 hover:underline font-semibold">Delete</button>
 </td>
 </tr>
 `;
 });
 } else {
-tbody.innerHTML = `<tr><td colspan="5" class="p-4 text-center text-slate-400">No shipments found in database.</td></tr>`;
+tbody.innerHTML = `<tr><td colspan="5" class="p-4 text-center text-slate-400">No active shipments found in database.</td></tr>`;
+}
+});
+}
+
+function openHistoryModal(trackingNo) {
+document.getElementById("modal-target-id").value = trackingNo;
+document.getElementById("modal-tracking-id").innerText = "Waybill ID: " + trackingNo;
+document.getElementById("history-modal").classList.remove("hidden");
+document.getElementById("history-modal").classList.add("flex");
+}
+
+function closeHistoryModal() {
+document.getElementById("history-modal").classList.add("hidden");
+document.getElementById("history-modal").classList.remove("flex");
+}
+
+function saveNewCheckpoint(e) {
+e.preventDefault();
+const trackingNo = document.getElementById("modal-target-id").value;
+const newStatus = document.getElementById("update-status").value;
+const newLocation = document.getElementById("update-location").value.trim();
+const newDetails = document.getElementById("update-details").value.trim();
+const now = new Date().toLocaleString();
+
+const btn = document.getElementById("modal-submit-btn");
+btn.innerText = "Saving...";
+btn.disabled = true;
+
+db.ref("shipments/" + trackingNo).once("value").then((snapshot) => {
+if (snapshot.exists()) {
+let data = snapshot.val();
+if (!data.history) data.history = [];
+
+
+data.history.push({
+status: newStatus,
+location: newLocation,
+details: newDetails,
+timestamp: now
+});
+data.currentStatus = newStatus;
+
+db.ref("shipments/" + trackingNo).set(data).then(() => {
+btn.innerText = "Append Checkpoint";
+btn.disabled = false;
+closeHistoryModal();
+alert("Checkpoint successfully added and synced in real-time!");
+});
 }
 });
 }
