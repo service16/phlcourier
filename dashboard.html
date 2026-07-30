@@ -52,63 +52,67 @@ blue: { 600: '#2563EB', 700: '#1D4ED8' }
 <main class="flex-grow max-w-7xl w-full mx-auto px-6 py-8 space-y-8">
 <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
 
-<!-- MY PROFILE SECTION -->
-<div class="bg-navy-900 border border-slate-800 p-6 rounded-3xl shadow-xl space-y-6">
-<h2 class="text-lg font-black tracking-tight text-white border-b border-slate-800 pb-4">MY PROFILE</h2>
+<!-- USER PROFILE CARD -->
+<div class="bg-navy-900 border border-slate-800 p-6 rounded-3xl shadow-xl space-y-6 h-fit">
+<div class="border-b border-slate-800 pb-4">
+<h2 class="text-xs uppercase tracking-widest text-slate-400 font-semibold">My Profile</h2>
+</div>
 <div class="space-y-4 text-xs">
 <div>
-<p class="text-slate-500 font-medium">Full Name</p>
-<p id="profile-name" class="text-white font-semibold text-sm mt-0.5">Loading...</p>
+<p class="text-slate-500">Full Name</p>
+<p id="profile-name" class="font-bold text-white text-sm mt-0.5">Loading...</p>
 </div>
 <div>
-<p class="text-slate-500 font-medium">Email Address</p>
-<p id="profile-email" class="text-white font-semibold text-sm mt-0.5">Loading...</p>
+<p class="text-slate-500">Email Address</p>
+<p id="profile-email" class="font-bold text-white text-sm mt-0.5">Loading...</p>
 </div>
 <div>
-<p class="text-slate-500 font-medium">Account Type</p>
-<span class="inline-block mt-1 bg-blue-600/20 border border-blue-600/40 text-blue-400 px-3 py-1 rounded-full font-semibold">Verified Client</span>
+<p class="text-slate-500">Account Type</p>
+<span class="inline-block mt-1 bg-blue-600/10 border border-blue-600/20 text-blue-400 px-3 py-1 rounded-lg font-semibold">Verified Client</span>
 </div>
 </div>
 </div>
 
-<!-- CREATE NEW SHIPMENT SECTION -->
+<!-- BOOK NEW SHIPMENT -->
 <div class="lg:col-span-2 bg-navy-900 border border-slate-800 p-6 rounded-3xl shadow-xl space-y-6">
-<h2 class="text-lg font-black tracking-tight text-white border-b border-slate-800 pb-4">CREATE NEW SHIPMENT</h2>
+<div class="border-b border-slate-800 pb-4">
+<h2 class="text-lg font-black tracking-tight text-white">Create New Shipment</h2>
+<p class="text-xs text-slate-400">Fill out shipment details to generate a tracking code and notify yourself via email.</p>
+</div>
 
-<form onsubmit="handleBookShipment(event)" class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
+<form onsubmit="handleBookShipment(event)" class="space-y-4 text-xs">
+<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
 <div class="space-y-1">
 <label class="text-slate-300 font-medium">Recipient Name</label>
 <input type="text" id="recipientName" required placeholder="Jane Doe" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-blue-600">
 </div>
-
 <div class="space-y-1">
 <label class="text-slate-300 font-medium">Destination Country/City</label>
-<input type="text" id="destination" required placeholder="New York, USA" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-blue-600">
+<input type="text" id="destination" required placeholder="London, UK" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-blue-600">
+</div>
 </div>
 
+<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
 <div class="space-y-1">
 <label class="text-slate-300 font-medium">Package Description</label>
 <input type="text" id="description" required placeholder="Documents / Electronics" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-blue-600">
 </div>
-
 <div class="space-y-1">
 <label class="text-slate-300 font-medium">Weight (kg)</label>
 <input type="number" step="0.1" id="weight" required placeholder="2.5" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-blue-600">
 </div>
+</div>
 
-<div class="sm:col-span-2 pt-2">
 <button type="submit" id="book-btn" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3.5 rounded-xl transition shadow-lg shadow-blue-600/30 text-sm">
 Book Shipment & Send Tracking Number via Email
 </button>
-</div>
 </form>
 </div>
-
 </div>
 
-<!-- SHIPMENT HISTORY & TRACKING SECTION -->
+<!-- MY SHIPMENT HISTORY -->
 <div class="bg-navy-900 border border-slate-800 p-6 rounded-3xl shadow-xl space-y-6">
-<h2 class="text-lg font-black tracking-tight text-white border-b border-slate-800 pb-4">MY SHIPMENT HISTORY & TRACKING</h2>
+<h2 class="text-lg font-black tracking-tight text-white border-b border-slate-800 pb-4">My Shipment History & Tracking</h2>
 <div class="overflow-x-auto">
 <table class="w-full text-left text-xs text-slate-300">
 <thead class="bg-slate-950 text-slate-400 uppercase tracking-wider border-b border-slate-800">
@@ -120,7 +124,7 @@ Book Shipment & Send Tracking Number via Email
 <th class="p-4">Date Booked</th>
 </tr>
 </thead>
-<tbody id="shipment-history-list" class="divide-y divide-slate-800">
+<tbody id="client-shipment-list" class="divide-y divide-slate-800">
 <tr>
 <td colspan="5" class="p-4 text-center text-slate-500">Loading your shipments...</td>
 </tr>
@@ -149,39 +153,44 @@ firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
 const db = firebase.database();
 
+let clientFullName = "Valued Client";
+
+// Monitor auth state & load user profile data
 auth.onAuthStateChanged((user) => {
 if (!user) {
 window.location.href = "login.html";
 return;
 }
 
-db.ref("users/" + user.uid).once("value")
-.then((snapshot) => {
-const userData = snapshot.val();
-const fullName = userData ? userData.fullName : (user.displayName || "Client");
-document.getElementById("profile-name").innerText = fullName;
-document.getElementById("profile-email").innerText = user.email;
+db.ref("users/" + user.uid).once("value").then((snapshot) => {
+const data = snapshot.val();
+if (data) {
+clientFullName = data.fullName;
+document.getElementById("profile-name").innerText = data.fullName;
+document.getElementById("profile-email").innerText = data.email;
+}
 });
 
+// Load client's shipments in real-time
 db.ref("shipments").orderByChild("userId").equalTo(user.uid).on("value", (snapshot) => {
-const historyTable = document.getElementById("shipment-history-list");
-historyTable.innerHTML = "";
+const table = document.getElementById("client-shipment-list");
+table.innerHTML = "";
 
 if (!snapshot.exists()) {
-historyTable.innerHTML = `<tr><td colspan="5" class="p-4 text-center text-slate-500">No shipments created yet. Book your first shipment above!</td></tr>`;
+table.innerHTML = `<tr><td colspan="5" class="p-4 text-center text-slate-500">No shipments found. Book your first package above!</td></tr>`;
 return;
 }
 
 snapshot.forEach((childSnap) => {
 const s = childSnap.val();
-const dateStr = s.createdAt ? new Date(s.createdAt).toLocaleDateString() : "N/A";
-historyTable.innerHTML += `
+const dateFormatted = new Date(s.createdAt).toLocaleDateString();
+table.innerHTML += `
 <tr class="hover:bg-slate-950/50 transition">
 <td class="p-4 font-mono font-bold text-blue-400">${s.trackingNumber}</td>
 <td class="p-4 text-white font-medium">${s.recipient}</td>
 <td class="p-4">${s.destination}</td>
 <td class="p-4"><span class="bg-blue-600/10 border border-blue-600/20 text-blue-400 px-2.5 py-1 rounded-lg font-semibold">${s.currentStatus}</span></td>
-<td class="p-4 text-slate-400">${dateStr}</td>
+<td class="p-4 text-slate-400">${dateFormatted}</td>
 </tr>
 `;
 });
@@ -229,22 +238,25 @@ timestamp: new Date().toLocaleString()
 
 db.ref("shipments/" + trackingNumber).set(shipmentData)
 .then(() => {
-return emailjs.send("service_q2z18lj", "jrxtuv9", {
-to_name: document.getElementById("profile-name").innerText,
+// Send tracking number email using unified 'message' variable
+const bookingMessage = `Hello ${clientFullName},\n\nYour shipment to ${destination} for recipient ${recipient} has been booked successfully.\n\nYour Tracking Number is: ${trackingNumber}\n\nYou can track your package status live on our website at any time using this tracking number.`;
+
+emailjs.send("service_q2z18lj", "jrxtuv9", {
+to_name: clientFullName,
 to_email: user.email,
-message_title: "Shipment Successfully Booked!",
-message_body: `Your shipment to ${destination} for recipient ${recipient} has been booked. Your tracking number is: ${trackingNumber}. You can now track your package live on our website.`
+message: bookingMessage
+}).catch(err => {
+console.warn("Email notification warning:", err);
 });
-})
-.then(() => {
-alert("Success! Shipment booked and tracking email sent.\nTracking Number: " + trackingNumber);
+
+alert("Success! Shipment booked successfully.\nTracking Number: " + trackingNumber);
 document.querySelector("form").reset();
 btn.innerText = "Book Shipment & Send Tracking Number via Email";
 btn.disabled = false;
 })
 .catch((err) => {
 console.error("Booking error:", err);
-alert("Shipment saved to database, but notification email failed. Tracking Number: " + trackingNumber);
+alert("Error saving shipment to database. Please try again.");
 btn.innerText = "Book Shipment & Send Tracking Number via Email";
 btn.disabled = false;
 });
