@@ -14,7 +14,7 @@
 <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
 <script type="text/javascript">
 // Initialize EmailJS with your Public Key
-emailjs.init("YOUR_EMAILJS_PUBLIC_KEY"); // Replace with your actual EmailJS Public Key
+emailjs.init("fpalDA0DLYaRkVD0o");
 </script>
 </head>
 <body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col justify-between font-sans">
@@ -118,7 +118,8 @@ window.location.href = "dashboard.html";
 })
 .catch((error) => {
 console.error("Signup error:", error);
-alert("Error: " + error.message);
+const errorMsg = error.text || error.message || JSON.stringify(error) || "Unknown error occurred";
+alert("Error: " + errorMsg);
 submitBtn.innerText = "Create Account";
 submitBtn.disabled = false;
 });
