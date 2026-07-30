@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>My Dashboard | PHL Express Global Logistics</title>
+<title>Client Dashboard | PHL Express Global Logistics</title>
 <link rel="icon" type="image/png" href="logo.png">
 <script src="https://cdn.tailwindcss.com"></script>
 
@@ -33,104 +33,103 @@ blue: { 600: '#2563EB', 700: '#1D4ED8' }
 </head>
 <body class="bg-slate-950 font-sans text-slate-300 antialiased min-h-screen flex flex-col justify-between">
 
-<!-- Top Navigation -->
 <header class="bg-navy-950 border-b border-slate-800">
 <div class="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
-<a href="index.html" class="flex items-center space-x-3">
+<div class="flex items-center space-x-3">
 <img src="logo.png" alt="PHL Express Logo" class="h-10 w-10 rounded-xl object-cover shadow-lg shadow-blue-600/30">
 <div class="flex flex-col">
 <span class="font-black tracking-tight text-lg text-white">PHL EXPRESS</span>
 <span class="text-[10px] tracking-widest text-blue-400 uppercase font-semibold">Client Portal</span>
 </div>
-</a>
+</div>
 <div class="flex items-center space-x-4">
-<span id="user-display-name" class="text-xs text-slate-300 font-medium">Loading...</span>
-<button onclick="handleLogout()" class="bg-rose-500/10 border border-rose-500/20 hover:bg-rose-500/20 text-rose-400 text-xs px-4 py-2 rounded-xl transition font-medium">
-Log Out
-</button>
+<a href="track.html" class="text-xs text-slate-300 hover:text-white transition font-medium">Track Package</a>
+<button onclick="handleLogout()" class="text-xs bg-rose-500/10 border border-rose-500/20 text-rose-400 hover:bg-rose-500/20 px-4 py-2 rounded-xl transition font-medium">Log Out</button>
 </div>
 </div>
 </header>
 
-<!-- Main Dashboard Content -->
-<main class="flex-grow max-w-7xl mx-auto px-6 py-10 w-full space-y-8">
+<main class="flex-grow max-w-7xl w-full mx-auto px-6 py-8 space-y-8">
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
 
-<!-- Welcome Banner & Profile Card -->
-<div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-<div class="bg-navy-900 border border-slate-800 p-6 rounded-3xl shadow-xl md:col-span-1 space-y-4">
-<h2 class="text-sm font-bold uppercase tracking-wider text-blue-400">My Profile</h2>
-<div class="space-y-2 text-xs">
-<p class="text-slate-400">Full Name:</p>
-<p id="profile-name" class="text-white font-semibold text-sm">Loading...</p>
+<!-- MY PROFILE SECTION -->
+<div class="bg-navy-900 border border-slate-800 p-6 rounded-3xl shadow-xl space-y-6">
+<h2 class="text-lg font-black tracking-tight text-white border-b border-slate-800 pb-4">MY PROFILE</h2>
+<div class="space-y-4 text-xs">
+<div>
+<p class="text-slate-500 font-medium">Full Name</p>
+<p id="profile-name" class="text-white font-semibold text-sm mt-0.5">Loading...</p>
 </div>
-<div class="space-y-2 text-xs">
-<p class="text-slate-400">Email Address:</p>
-<p id="profile-email" class="text-white font-semibold text-sm">Loading...</p>
+<div>
+<p class="text-slate-500 font-medium">Email Address</p>
+<p id="profile-email" class="text-white font-semibold text-sm mt-0.5">Loading...</p>
 </div>
-<div class="space-y-2 text-xs">
-<p class="text-slate-400">Account Type:</p>
-<p class="inline-block bg-blue-600/20 text-blue-400 border border-blue-600/30 px-2.5 py-1 rounded-lg font-medium">Verified Client</p>
+<div>
+<p class="text-slate-500 font-medium">Account Type</p>
+<span class="inline-block mt-1 bg-blue-600/20 border border-blue-600/40 text-blue-400 px-3 py-1 rounded-full font-semibold">Verified Client</span>
+</div>
 </div>
 </div>
 
-<!-- Quick Action: Create New Shipment -->
-<div class="bg-navy-900 border border-slate-800 p-6 rounded-3xl shadow-xl md:col-span-2 space-y-4">
-<h2 class="text-sm font-bold uppercase tracking-wider text-blue-400">Create New Shipment</h2>
-<form onsubmit="createShipment(event)" class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
+<!-- CREATE NEW SHIPMENT SECTION -->
+<div class="lg:col-span-2 bg-navy-900 border border-slate-800 p-6 rounded-3xl shadow-xl space-y-6">
+<h2 class="text-lg font-black tracking-tight text-white border-b border-slate-800 pb-4">CREATE NEW SHIPMENT</h2>
+
+<form onsubmit="handleBookShipment(event)" class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
 <div class="space-y-1">
 <label class="text-slate-300 font-medium">Recipient Name</label>
-<input type="text" id="recipient" required placeholder="Jane Doe" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-white focus:outline-none focus:border-blue-600">
+<input type="text" id="recipientName" required placeholder="Jane Doe" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-blue-600">
 </div>
+
 <div class="space-y-1">
 <label class="text-slate-300 font-medium">Destination Country/City</label>
-<input type="text" id="destination" required placeholder="New York, USA" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-white focus:outline-none focus:border-blue-600">
+<input type="text" id="destination" required placeholder="New York, USA" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-blue-600">
 </div>
+
 <div class="space-y-1">
 <label class="text-slate-300 font-medium">Package Description</label>
-<input type="text" id="package-desc" required placeholder="Documents / Electronics" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-white focus:outline-none focus:border-blue-600">
+<input type="text" id="description" required placeholder="Documents / Electronics" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-blue-600">
 </div>
+
 <div class="space-y-1">
 <label class="text-slate-300 font-medium">Weight (kg)</label>
-<input type="number" id="weight" required placeholder="2.5" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-white focus:outline-none focus:border-blue-600">
+<input type="number" step="0.1" id="weight" required placeholder="2.5" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-blue-600">
 </div>
+
 <div class="sm:col-span-2 pt-2">
-<button type="submit" id="shipment-btn" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 rounded-xl transition shadow-lg shadow-blue-600/30 text-xs">
+<button type="submit" id="book-btn" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3.5 rounded-xl transition shadow-lg shadow-blue-600/30 text-sm">
 Book Shipment & Send Tracking Number via Email
 </button>
 </div>
 </form>
 </div>
+
 </div>
 
-<!-- Shipment Tracking & History Section -->
-<div class="bg-navy-900 border border-slate-800 p-6 rounded-3xl shadow-xl space-y-4">
-<div class="flex items-center justify-between">
-<h2 class="text-sm font-bold uppercase tracking-wider text-blue-400">My Shipment History & Tracking</h2>
-<span id="shipment-count" class="text-xs text-slate-400">0 shipments found</span>
-</div>
+<!-- SHIPMENT HISTORY & TRACKING SECTION -->
+<div class="bg-navy-900 border border-slate-800 p-6 rounded-3xl shadow-xl space-y-6">
+<h2 class="text-lg font-black tracking-tight text-white border-b border-slate-800 pb-4">MY SHIPMENT HISTORY & TRACKING</h2>
 <div class="overflow-x-auto">
-<table class="w-full text-left text-xs">
-<thead class="bg-slate-950 text-slate-400 border-b border-slate-800">
+<table class="w-full text-left text-xs text-slate-300">
+<thead class="bg-slate-950 text-slate-400 uppercase tracking-wider border-b border-slate-800">
 <tr>
-<th class="p-3">Tracking Number</th>
-<th class="p-3">Recipient</th>
-<th class="p-3">Destination</th>
-<th class="p-3">Status</th>
-<th class="p-3">Date</th>
+<th class="p-4">Tracking Number</th>
+<th class="p-4">Recipient</th>
+<th class="p-4">Destination</th>
+<th class="p-4">Current Status</th>
+<th class="p-4">Date Booked</th>
 </tr>
 </thead>
-<tbody id="shipments-table-body" class="divide-y divide-slate-800">
+<tbody id="shipment-history-list" class="divide-y divide-slate-800">
 <tr>
-<td colspan="5" class="p-6 text-center text-slate-500">Loading shipments...</td>
+<td colspan="5" class="p-4 text-center text-slate-500">Loading your shipments...</td>
 </tr>
 </tbody>
 </table>
 </div>
 </div>
-
 </main>
 
-<!-- Footer -->
 <footer class="bg-navy-950 text-slate-500 py-6 text-center text-xs border-t border-slate-900">
 &copy; 2026 PHL Express. All rights reserved.
 </footer>
@@ -150,126 +149,110 @@ firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
 const db = firebase.database();
 
-let clientFullName = "";
-
 auth.onAuthStateChanged((user) => {
 if (!user) {
 window.location.href = "login.html";
-} else {
-const email = user.email;
-document.getElementById("profile-email").innerText = email;
-
-db.ref("users/" + user.uid).once("value").then((snapshot) => {
-const data = snapshot.val();
-if (data && data.fullName) {
-clientFullName = data.fullName;
-document.getElementById("profile-name").innerText = clientFullName;
-document.getElementById("user-display-name").innerText = `Hi, ${clientFullName}`;
-} else {
-clientFullName = email.split('@')[0];
-document.getElementById("profile-name").innerText = clientFullName;
-document.getElementById("user-display-name").innerText = `Hi, ${clientFullName}`;
-}
-}).catch(() => {
-clientFullName = email.split('@')[0];
-document.getElementById("profile-name").innerText = clientFullName;
-document.getElementById("user-display-name").innerText = `Hi, ${clientFullName}`;
-});
-
-loadUserShipments(user.uid);
-}
-});
-
-function loadUserShipments(uid) {
-db.ref("shipments").orderByChild("userId").equalTo(uid).once("value")
-.then((snapshot) => {
-const tbody = document.getElementById("shipments-table-body");
-tbody.innerHTML = "";
-
-if (!snapshot.exists()) {
-document.getElementById("shipment-count").innerText = "0 shipments found";
-tbody.innerHTML = `<tr><td colspan="5" class="p-6 text-center text-slate-500">No shipments created yet. Book your first shipment above!</td></tr>`;
 return;
 }
 
-let count = 0;
-snapshot.forEach((childSnapshot) => {
-count++;
-const s = childSnapshot.val();
-let statusBadge = '';
-if(s.status === 'Approved') {
-statusBadge = `<span class="bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 px-2.5 py-1 rounded-full font-medium">Approved</span>`;
-} else if(s.status === 'In Transit') {
-statusBadge = `<span class="bg-blue-500/10 text-blue-400 border border-blue-500/20 px-2.5 py-1 rounded-full font-medium">In Transit</span>`;
-} else if(s.status === 'Delivered') {
-statusBadge = `<span class="bg-purple-500/10 text-purple-400 border border-purple-500/20 px-2.5 py-1 rounded-full font-medium">Delivered</span>`;
-} else {
-statusBadge = `<span class="bg-amber-500/10 text-amber-400 border border-amber-500/20 px-2.5 py-1 rounded-full font-medium">Pending Approval</span>`;
+db.ref("users/" + user.uid).once("value")
+.then((snapshot) => {
+const userData = snapshot.val();
+const fullName = userData ? userData.fullName : (user.displayName || "Client");
+document.getElementById("profile-name").innerText = fullName;
+document.getElementById("profile-email").innerText = user.email;
+});
+
+db.ref("shipments").orderByChild("userId").equalTo(user.uid).on("value", (snapshot) => {
+const historyTable = document.getElementById("shipment-history-list");
+historyTable.innerHTML = "";
+
+if (!snapshot.exists()) {
+historyTable.innerHTML = `<tr><td colspan="5" class="p-4 text-center text-slate-500">No shipments created yet. Book your first shipment above!</td></tr>`;
+return;
 }
 
-tbody.innerHTML += `
+snapshot.forEach((childSnap) => {
+const s = childSnap.val();
+const dateStr = s.createdAt ? new Date(s.createdAt).toLocaleDateString() : "N/A";
+historyTable.innerHTML += `
 <tr class="hover:bg-slate-950/50 transition">
-<td class="p-3 font-mono text-blue-400 font-bold">${s.trackingNumber}</td>
-<td class="p-3 text-white">${s.recipient}</td>
-<td class="p-3">${s.destination}</td>
-<td class="p-3">${statusBadge}</td>
-<td class="p-3 text-slate-400">${new Date(s.createdAt).toLocaleDateString()}</td>
+<td class="p-4 font-mono font-bold text-blue-400">${s.trackingNumber}</td>
+<td class="p-4 text-white font-medium">${s.recipient}</td>
+<td class="p-4">${s.destination}</td>
+<td class="p-4"><span class="bg-blue-600/10 border border-blue-600/20 text-blue-400 px-2.5 py-1 rounded-lg font-semibold">${s.currentStatus}</span></td>
+<td class="p-4 text-slate-400">${dateStr}</td>
 </tr>
 `;
 });
-document.getElementById("shipment-count").innerText = `${count} shipments found`;
-})
-.catch((err) => {
-console.error("Error loading shipments:", err);
 });
+});
+
+function handleBookShipment(e) {
+e.preventDefault();
+
+const recipient = document.getElementById("recipientName").value;
+const destination = document.getElementById("destination").value;
+const description = document.getElementById("description").value;
+const weight = document.getElementById("weight").value;
+const user = auth.currentUser;
+
+if (!user) {
+alert("Session expired. Please log in again.");
+window.location.href = "login.html";
+return;
 }
 
-function createShipment(e) {
-e.preventDefault();
-const user = auth.currentUser;
-if (!user) return;
+const trackingNumber = "PHL-" + Math.floor(100000 + Math.random() * 900000);
+const btn = document.getElementById("book-btn");
+btn.innerText = "Processing booking & sending email...";
+btn.disabled = true;
 
-const btn = document.getElementById("shipment-btn");
-btn.innerText = "Booking & emailing tracking number...";
-
-const trackingNumber = "PHL-" + Math.floor(100000000 + Math.random() * 900000000);
 const shipmentData = {
-userId: user.uid,
-userEmail: user.email,
 trackingNumber: trackingNumber,
-recipient: document.getElementById("recipient").value,
-destination: document.getElementById("destination").value,
-packageDesc: document.getElementById("package-desc").value,
-weight: document.getElementById("weight").value,
-status: "Pending Approval",
-createdAt: new Date().toISOString()
+userId: user.uid,
+clientEmail: user.email,
+recipient: recipient,
+destination: destination,
+description: description,
+weight: weight,
+currentStatus: "Shipment Booked",
+createdAt: new Date().toISOString(),
+history: [
+{
+status: "Shipment Booked & Confirmed",
+location: "Origin Facility",
+timestamp: new Date().toLocaleString()
+}
+]
 };
 
-const newShipmentRef = db.ref("shipments").push();
-newShipmentRef.set(shipmentData)
+db.ref("shipments/" + trackingNumber).set(shipmentData)
 .then(() => {
 return emailjs.send("service_q2z18lj", "jrxtuv9", {
-to_name: clientFullName || user.email,
+to_name: document.getElementById("profile-name").innerText,
 to_email: user.email,
-message_title: "Shipment Booked & Tracking Number Assigned",
-message_body: `Your shipment to ${shipmentData.destination} has been booked. Your tracking number is: ${trackingNumber}. Status: Pending Approval.`
+message_title: "Shipment Successfully Booked!",
+message_body: `Your shipment to ${destination} for recipient ${recipient} has been booked. Your tracking number is: ${trackingNumber}. You can now track your package live on our website.`
 });
 })
 .then(() => {
-alert(`Shipment booked successfully! Tracking Number ${trackingNumber} has been emailed to you.`);
+alert("Success! Shipment booked and tracking email sent.\nTracking Number: " + trackingNumber);
 document.querySelector("form").reset();
 btn.innerText = "Book Shipment & Send Tracking Number via Email";
-loadUserShipments(user.uid);
+btn.disabled = false;
 })
 .catch((err) => {
-alert("Error: " + err.message);
+console.error("Booking error:", err);
+alert("Shipment saved to database, but notification email failed. Tracking Number: " + trackingNumber);
 btn.innerText = "Book Shipment & Send Tracking Number via Email";
+btn.disabled = false;
 });
 }
 
 function handleLogout() {
 auth.signOut().then(() => {
-window.location.href = "index.html";
+window.location.href = "login.html";
 });
 }
 </script>
