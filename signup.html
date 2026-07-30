@@ -110,7 +110,6 @@ btn.innerText = "Creating account...";
 
 auth.createUserWithEmailAndPassword(email, password)
 .then((cred) => {
-// Save user profile data to database
 return db.ref("users/" + cred.user.uid).set({
 fullName: name,
 email: email,
@@ -119,24 +118,21 @@ createdAt: new Date().toISOString()
 });
 })
 .then(() => {
-// Send welcome email in the background without blocking login
+// Background welcome email with unified 'message' variable
+const welcomeMessage = `Welcome to PHL Express Global Logistics, ${name}!\n\nYour client portal account has been successfully created and is ready for managing shipments.`;
+
 emailjs.send("service_q2z18lj", "jrxtuv9", {
 to_name: name,
 to_email: email,
-message_title: "Account Successfully Created!",
-message_body: "Welcome to PHL Express Global Logistics! Your account has been successfully created and approved for shipping management."
-}).catch(err => {
-console.warn("Background email notification skipped:", err);
-});
+message: welcomeMessage
+}).catch(err => console.warn("Background email notification skipped:", err));
 
-// Immediately redirect user to dashboard smoothly
 window.location.href = "dashboard.html";
 })
 .catch((err) => {
 console.error("Signup error:", err);
 let friendlyMessage = "Unable to create your account right now. Please try again.";
 
-// Map technical Firebase errors to polite, professional customer messages
 if (err.code === "auth/email-already-in-use") {
 friendlyMessage = "This email address is already registered. Please log in to your account instead.";
 } else if (err.code === "auth/weak-password") {
