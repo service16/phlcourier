@@ -35,6 +35,7 @@ blue: { 600: '#2563EB', 700: '#1D4ED8' }
 
 <header class="bg-navy-950 border-b border-slate-800">
 <div class="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
+<div class="flex items-center space-x-6">
 <div class="flex items-center space-x-3">
 <img src="logo.png" alt="PHL Express Logo" class="h-10 w-10 rounded-xl object-cover shadow-lg shadow-blue-600/30">
 <div class="flex flex-col">
@@ -42,8 +43,13 @@ blue: { 600: '#2563EB', 700: '#1D4ED8' }
 <span class="text-[10px] tracking-widest text-blue-400 uppercase font-semibold">Client Portal</span>
 </div>
 </div>
+<nav class="hidden md:flex space-x-6 text-xs font-medium text-slate-300 pl-4 border-l border-slate-800">
+<a href="index.html" class="hover:text-white transition">Home</a>
+<a href="track.html" class="hover:text-white transition">Track Package</a>
+<a href="dashboard.html" class="text-amber-400 font-semibold">Dashboard</a>
+</nav>
+</div>
 <div class="flex items-center space-x-4">
-<a href="track.html" class="text-xs text-slate-300 hover:text-white transition font-medium">Track Package</a>
 <button onclick="handleLogout()" class="text-xs bg-rose-500/10 border border-rose-500/20 text-rose-400 hover:bg-rose-500/20 px-4 py-2 rounded-xl transition font-medium">Log Out</button>
 </div>
 </div>
@@ -238,12 +244,12 @@ timestamp: new Date().toLocaleString()
 
 db.ref("shipments/" + trackingNumber).set(shipmentData)
 .then(() => {
-// Send tracking number email using unified 'message' variable
 const bookingMessage = `Hello ${clientFullName},\n\nYour shipment to ${destination} for recipient ${recipient} has been booked successfully.\n\nYour Tracking Number is: ${trackingNumber}\n\nYou can track your package status live on our website at any time using this tracking number.`;
 
-emailjs.send("service_q2z18lj", "jrxtuv9", {
+emailjs.send("service_q2z18lj", "template_r8be1pc", {
 to_name: clientFullName,
 to_email: user.email,
+subject_title: `Shipment Confirmation (#${trackingNumber})`,
 message: bookingMessage
 }).catch(err => {
 console.warn("Email notification warning:", err);
