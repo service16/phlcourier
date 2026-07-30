@@ -104,14 +104,14 @@ createdAt: new Date().toISOString()
 });
 })
 .then(() => {
-// 2. Send EmailJS using service ID, jrxtuv9 template ID, parameters, and public key
+// 2. Send EmailJS using correct service ID, template ID, parameters, and public key
 const templateParams = {
 to_name: fullName,
 to_email: email,
 message: `Welcome to PHL Express, ${fullName}!\n\nYour client portal account has been successfully created. You can now log in to book and track your shipments seamlessly.\n\nThank you for choosing us!`
 };
 
-return emailjs.send("service_q2z18lj", "jrxtuv9", templateParams, "fpalDA0DLYaRkVD0o");
+return emailjs.send("service_q2z18lj", "template_r8be1pc", templateParams, "fpalDA0DLYaRkVD0o");
 })
 .then((response) => {
 console.log("EmailJS Success!", response.status, response.text);
