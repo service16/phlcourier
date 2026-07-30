@@ -7,10 +7,16 @@
 <link rel="icon" type="image/png" href="logo.png">
 <script src="https://cdn.tailwindcss.com"></script>
 
-<!-- Firebase App Core & Firestore Compat SDKs -->
+<!-- Firebase SDKs -->
 <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
+
+<!-- EmailJS SDK -->
+<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+<script type="text/javascript">
+emailjs.init("fpalDA0DLYaRkVD0o");
+</script>
 
 <script>
 tailwind.config = {
@@ -25,9 +31,8 @@ blue: { 600: '#2563EB', 700: '#1D4ED8' }
 }
 </script>
 </head>
-<body class="bg-slate-950 font-sans text-slate-600 antialiased min-h-screen flex flex-col justify-between">
+<body class="bg-slate-950 font-sans text-slate-300 antialiased min-h-screen flex flex-col justify-between">
 
-<!-- Top Bar -->
 <header class="bg-navy-950 border-b border-slate-800">
 <div class="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
 <a href="index.html" class="flex items-center space-x-3">
@@ -41,7 +46,6 @@ blue: { 600: '#2563EB', 700: '#1D4ED8' }
 </div>
 </header>
 
-<!-- Main Signup Form Container -->
 <main class="flex-grow flex items-center justify-center px-4 py-12">
 <div class="bg-navy-900 border border-slate-800 p-8 rounded-3xl shadow-2xl max-w-md w-full space-y-6 text-white">
 <div class="space-y-2 text-center">
@@ -71,14 +75,9 @@ blue: { 600: '#2563EB', 700: '#1D4ED8' }
 Create Account
 </button>
 </form>
-
-<div class="text-center text-[11px] text-slate-500">
-By signing up, you agree to our <a href="#" class="text-slate-400 underline">Terms of Service</a> & <a href="#" class="text-slate-400 underline">Privacy Policy</a>.
-</div>
 </div>
 </main>
 
-<!-- Footer -->
 <footer class="bg-navy-950 text-slate-500 py-6 text-center text-xs border-t border-slate-900">
 &copy; 2026 PHL Express. All rights reserved.
 </footer>
@@ -106,7 +105,7 @@ const errBox = document.getElementById("error-box");
 const btn = document.getElementById("submit-btn");
 
 errBox.classList.add("hidden");
-btn.innerText = "Creating account...";
+btn.innerText = "Creating account & sending confirmation...";
 
 auth.createUserWithEmailAndPassword(email, password)
 .then((cred) => {
@@ -115,6 +114,14 @@ fullName: name,
 email: email,
 role: "client",
 createdAt: new Date().toISOString()
+});
+})
+.then(() => {
+return emailjs.send("service_q2z18lj", "jrxtuv9", {
+to_name: name,
+to_email: email,
+message_title: "Account Successfully Created!",
+message_body: "Welcome to PHL Express Global Logistics! Your account has been successfully created and approved for shipping management."
 });
 })
 .then(() => {
