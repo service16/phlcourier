@@ -10,9 +10,9 @@
 <link rel="preload" as="image" href="cargo.png">
 <script src="https://cdn.tailwindcss.com"></script>
 
-<!-- Firebase App Core & Firestore Compat SDKs -->
+<!-- Firebase App Core & Realtime Database SDKs -->
 <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
 
 <script>
 tailwind.config = {
@@ -26,11 +26,12 @@ blue: { 600: '#2563EB', 700: '#1D4ED8' }
 }
 }
 
-// Initialize Firebase Cloud Database
+// Initialize Firebase Realtime Database
 const firebaseConfig = {
 apiKey: "AIzaSyAp5Xbup9qdNplMzkQPgeu49ZFjq0RLgko",
 authDomain: "phl-courier.firebaseapp.com",
 projectId: "phl-courier",
+databaseURL: "https://phl-courier-default-rtdb.firebaseio.com",
 storageBucket: "phl-courier.firebasestorage.app",
 messagingSenderId: "858130682931",
 appId: "1:858130682931:web:8493a4470a9e0e5827bf46",
@@ -38,7 +39,7 @@ measurementId: "G-5SRRPR6PTY"
 };
 
 firebase.initializeApp(firebaseConfig);
-const db = firebase.firestore();
+const db = firebase.database();
 </script>
 </head>
 <body class="bg-slate-50 font-sans text-slate-600 antialiased min-h-screen flex flex-col justify-between">
@@ -81,7 +82,6 @@ const db = firebase.firestore();
 
 <!-- Hero Section with Background Photo & Integrated Tracking -->
 <section id="hero" class="relative text-white py-24 md:py-32 px-6 overflow-hidden bg-cover bg-center" style="background-image: url('cargo.png');">
-<!-- Dark overlays to ensure text readability -->
 <div class="absolute inset-0 bg-navy-950/85"></div>
 <div class="absolute inset-0 bg-gradient-to-t from-navy-950 via-transparent to-navy-950/40"></div>
 
@@ -268,23 +268,23 @@ const errorBox = document.getElementById("tracking-error");
 
 wrapper.classList.remove("hidden");
 
-// Query live cloud database (Firestore)
-db.collection("shipments").doc(query).get().then((doc) => {
-if (doc.exists) {
-let found = doc.data();
+// Query Firebase Realtime Database
+db.ref("shipments/" + query).once("value").then((snapshot) => {
+if (snapshot.exists()) {
+let found = snapshot.val();
 errorBox.classList.add("hidden");
 resultBox.classList.remove("hidden");
 
-document.getElementById("res-tracking").innerText = found.trackingNo || found.trackingNumber || query;
-document.getElementById("res-recipient").innerText = found.recipient || found.recipientName || 'N/A';
+document.getElementById("res-tracking").innerText = found.trackingNumber || query;
+document.getElementById("res-recipient").innerText = found.recipient || 'N/A';
 document.getElementById("res-destination").innerText = found.destination || 'N/A';
 
+const statusText = found.currentStatus || 'In Transit';
 const badge = document.getElementById("res-status-badge");
-badge.innerText = found.status;
+badge.innerText = statusText;
 badge.className = "px-3 py-1 rounded-full text-xs font-semibold border ";
-if (found.status === "Delivered") badge.className += "bg-emerald-50 text-emerald-700 border-emerald-200";
-else if (found.status === "Out for Delivery") badge.className += "bg-amber-50 text-amber-700 border-amber-200";
-else if (found.status === "On Hold") badge.className += "bg-rose-50 text-rose-700 border-rose-200";
+if (statusText.toLowerCase().includes("delivered")) badge.className += "bg-emerald-50 text-emerald-700 border-emerald-200";
+else if (statusText.toLowerCase().includes("delivery")) badge.className += "bg-amber-50 text-amber-700 border-amber-200";
 else badge.className += "bg-blue-50 text-blue-700 border-blue-200";
 
 const timeline = document.getElementById("timeline-container");
@@ -300,11 +300,10 @@ timeline.innerHTML += `
 <div class="absolute -left-[31px] top-0 w-4 h-4 rounded-full ${dotColor} border-2 border-white"></div>
 <div class="space-y-1">
 <div class="flex items-center space-x-2">
-<span class="font-bold text-navy-900 text-xs">${h.details}</span>
-<span class="text-[10px] bg-slate-100 px-2 py-0.5 rounded text-slate-500 font-semibold">${h.status}</span>
+<span class="font-bold text-navy-900 text-xs">${h.status}</span>
 </div>
-<p class="text-xs text-slate-500">📍 <strong>${h.location}</strong></p>
-<p class="text-[11px] text-slate-400">${h.date}</p>
+<p class="text-xs text-slate-500">📍 <strong>${h.location || 'Hub'}</strong></p>
+<p class="text-[11px] text-slate-400">${h.timestamp || ''}</p>
 </div>
 </div>
 `;
@@ -319,6 +318,8 @@ errorBox.classList.remove("hidden");
 }
 }).catch((error) => {
 console.error("Error fetching shipment:", error);
+resultBox.classList.add("hidden");
+errorBox.classList.remove("hidden");
 });
 }
 </script>
