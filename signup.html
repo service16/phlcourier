@@ -13,7 +13,6 @@
 <!-- EmailJS SDK -->
 <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
 <script type="text/javascript">
-// Initialize EmailJS with your Public Key
 emailjs.init("fpalDA0DLYaRkVD0o");
 </script>
 </head>
@@ -93,33 +92,36 @@ const submitBtn = document.getElementById("signupBtn");
 submitBtn.innerText = "Creating Account...";
 submitBtn.disabled = true;
 
-// 1. Create user in Firebase Auth
+// 1. Create user in Firebase Auth & save profile to Database
 firebase.auth().createUserWithEmailAndPassword(email, password)
 .then((userCredential) => {
 const userId = userCredential.user.uid;
 
-// 2. Save user profile to Firebase Realtime Database
 return db.ref("users/" + userId).set({
 fullName: fullName,
 email: email,
 createdAt: new Date().toISOString()
-}).then(() => {
-// 3. Send Welcome Email via EmailJS with your correct template ID
-return emailjs.send("service_q2z18lj", "template_r8be1pc", {
-to_name: fullName,
-to_email: email,
-message: `Welcome to PHL Express, ${fullName}!\n\nYour client portal account has been successfully created. You can now log in to book and track your shipments seamlessly.\n\nThank you for choosing us!`
-});
 });
 })
 .then(() => {
-alert("Account created successfully! Welcome email sent.");
+// 2. Fire EmailJS in the background without blocking login
+emailjs.send("service_q2z18lj", "template_r8be1pc", {
+to_name: fullName,
+to_email: email,
+message: `Welcome to PHL Express, ${fullName}!\n\nYour client portal account has been successfully created. You can now log in to book and track your shipments seamlessly.\n\nThank you for choosing us!`
+}).then(() => {
+console.log("Welcome email sent successfully!");
+}).catch((emailErr) => {
+console.warn("EmailJS background note:", emailErr);
+});
+
+// 3. Complete signup & redirect
+alert("Account created successfully!");
 window.location.href = "dashboard.html";
 })
 .catch((error) => {
 console.error("Signup error:", error);
-const errorMsg = error.text || error.message || JSON.stringify(error) || "Unknown error occurred";
-alert("Error: " + errorMsg);
+alert("Error: " + (error.message || "Unknown error occurred"));
 submitBtn.innerText = "Create Account";
 submitBtn.disabled = false;
 });
