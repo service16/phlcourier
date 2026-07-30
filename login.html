@@ -1,67 +1,112 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="scroll-smooth">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Log In - PHL Express</title>
+<title>Log In | PHL Express Global Logistics</title>
+<link rel="icon" type="image/png" href="logo.png">
 <script src="https://cdn.tailwindcss.com"></script>
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
-<style>body { font-family: 'Poppins', sans-serif; }</style>
+
+<!-- Firebase App Core & Firestore Compat SDKs -->
+<script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
+
+<script>
+tailwind.config = {
+theme: {
+extend: {
+colors: {
+navy: { 900: '#0F172A', 950: '#090D16' },
+blue: { 600: '#2563EB', 700: '#1D4ED8' }
+}
+}
+}
+}
+</script>
 </head>
-<body class="bg-gray-950 text-gray-100 flex items-center justify-center min-h-screen">
+<body class="bg-slate-950 font-sans text-slate-600 antialiased min-h-screen flex flex-col justify-between">
 
-<div class="bg-zinc-900 border border-zinc-800 p-8 rounded-xl shadow-xl w-full max-w-md">
-<div class="text-center mb-6">
-<h1 class="text-2xl font-bold tracking-wider text-yellow-500">PHL<span class="text-white">EXPRESS</span></h1>
-<p class="text-sm text-gray-400 mt-1">Log in to your account</p>
+<!-- Top Bar -->
+<header class="bg-navy-950 border-b border-slate-800">
+<div class="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
+<a href="index.html" class="flex items-center space-x-3">
+<img src="logo.png" alt="PHL Express Logo" class="h-10 w-10 rounded-xl object-cover shadow-lg shadow-blue-600/30">
+<div class="flex flex-col">
+<span class="font-black tracking-tight text-lg text-white">PHL EXPRESS</span>
+<span class="text-[10px] tracking-widest text-blue-400 uppercase font-semibold">Global Logistics</span>
+</div>
+</a>
+<a href="signup.html" class="text-xs text-slate-300 hover:text-white transition font-medium">New user? <span class="text-blue-400 underline">Sign Up</span></a>
+</div>
+</header>
+
+<!-- Main Login Form Container -->
+<main class="flex-grow flex items-center justify-center px-4 py-12">
+<div class="bg-navy-900 border border-slate-800 p-8 rounded-3xl shadow-2xl max-w-md w-full space-y-6 text-white">
+<div class="space-y-2 text-center">
+<h1 class="text-2xl font-black tracking-tight">Welcome Back</h1>
+<p class="text-xs text-slate-400">Log in to manage your shipments and account details.</p>
 </div>
 
-<form id="login-form" class="space-y-4">
-<div>
-<label class="block text-sm text-gray-400 mb-1">Email Address</label>
-<input type="email" id="email" required placeholder="name@example.com" class="w-full bg-zinc-950 border border-zinc-800 rounded px-3 py-2 text-white focus:border-yellow-500 outline-none">
+<div id="error-box" class="bg-rose-500/10 border border-rose-500/20 text-rose-400 text-xs p-3 rounded-xl hidden"></div>
+
+<form onsubmit="handleLogin(event)" class="space-y-4 text-xs">
+<div class="space-y-1">
+<label class="text-slate-300 font-medium">Email Address</label>
+<input type="email" id="email" required placeholder="name@example.com" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-blue-600">
 </div>
-<div>
-<label class="block text-sm text-gray-400 mb-1">Password</label>
-<input type="password" id="password" required placeholder="••••••••" class="w-full bg-zinc-950 border border-zinc-800 rounded px-3 py-2 text-white focus:border-yellow-500 outline-none">
+
+<div class="space-y-1">
+<label class="text-slate-300 font-medium">Password</label>
+<input type="password" id="password" required placeholder="••••••••" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-blue-600">
 </div>
-<button type="submit" class="w-full bg-yellow-500 hover:bg-yellow-600 text-black font-semibold py-2 rounded transition">Log In</button>
+
+<button type="submit" id="submit-btn" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3.5 rounded-xl transition shadow-lg shadow-blue-600/30 text-sm">
+Log In
+</button>
 </form>
-
-<p class="text-xs text-center text-gray-400 mt-4">
-Don't have an account? <a href="signup.html" class="text-yellow-500 hover:underline">Sign up</a>
-</p>
 </div>
+</main>
 
-<script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/12.16.0/firebase-app.js";
-import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/12.16.0/firebase-auth.js";
+<!-- Footer -->
+<footer class="bg-navy-950 text-slate-500 py-6 text-center text-xs border-t border-slate-900">
+&copy; 2026 PHL Express. All rights reserved.
+</footer>
 
+<script>
 const firebaseConfig = {
-apiKey: "AIzaSyBdqx9cOtXv5Si1MMrwnPxDoVkJWdYSd4",
-authDomain: "phl-express.firebaseapp.com",
-projectId: "phl-express",
-storageBucket: "phl-express.firebasestorage.app",
-messagingSenderId: "561028625183",
-appId: "1:561028625183:web:ceb8ba2452a79ecdffb62a",
-measurementId: "G-838P851DXJ"
+apiKey: "AIzaSyAp5Xbup9qdNplMzkQPgeu49ZFjq0RLgko",
+authDomain: "phl-courier.firebaseapp.com",
+projectId: "phl-courier",
+storageBucket: "phl-courier.firebasestorage.app",
+messagingSenderId: "858130682931",
+appId: "1:858130682931:web:8493a4470a9e0e5827bf46",
+measurementId: "G-5SRRPR6PTY"
 };
+firebase.initializeApp(firebaseConfig);
+const auth = firebase.auth();
 
-const app = initializeApp(firebaseConfig);
-const auth = getAuth(app);
-
-document.getElementById("login-form").addEventListener("submit", async (e) => {
+function handleLogin(e) {
 e.preventDefault();
 const email = document.getElementById("email").value;
 const password = document.getElementById("password").value;
+const errBox = document.getElementById("error-box");
+const btn = document.getElementById("submit-btn");
 
-try {
-await signInWithEmailAndPassword(auth, email, password);
-window.location.href = "dashboard.html";
-} catch (error) {
-alert("Login Error: " + error.message);
-}
+errBox.classList.add("hidden");
+btn.innerText = "Logging in...";
+
+auth.signInWithEmailAndPassword(email, password)
+.then(() => {
+window.location.href = "index.html";
+})
+.catch((err) => {
+errBox.innerText = err.message;
+errBox.classList.remove("hidden");
+btn.innerText = "Log In";
 });
+}
 </script>
 </body>
 </html>
