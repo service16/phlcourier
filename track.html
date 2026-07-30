@@ -1,26 +1,161 @@
-function trackPackage(trackingNumber) {
-db.ref("shipments/" + trackingNumber).once("value")
-.then((snapshot) => {
-const data = snapshot.val();
-if (!data) {
-alert("Tracking number not found. Please check and try again.");
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Track Shipment | PHL Express Global Logistics</title>
+<link rel="icon" type="image/png" href="logo.png">
+<script src="https://cdn.tailwindcss.com"></script>
+
+<!-- Firebase SDKs -->
+<script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
+
+<script>
+tailwind.config = {
+theme: {
+extend: {
+colors: {
+navy: { 900: '#0F172A', 950: '#090D16' },
+blue: { 600: '#2563EB', 700: '#1D4ED8' }
+}
+}
+}
+}
+</script>
+</head>
+<body class="bg-slate-950 font-sans text-slate-300 antialiased min-h-screen flex flex-col justify-between">
+
+<header class="bg-navy-950 border-b border-slate-800">
+<div class="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
+<a href="index.html" class="flex items-center space-x-3">
+<img src="logo.png" alt="PHL Express Logo" class="h-10 w-10 rounded-xl object-cover shadow-lg shadow-blue-600/30">
+<div class="flex flex-col">
+<span class="font-black tracking-tight text-lg text-white">PHL EXPRESS</span>
+<span class="text-[10px] tracking-widest text-blue-400 uppercase font-semibold">Global Logistics</span>
+</div>
+</a>
+<div class="flex items-center space-x-3">
+<a href="dashboard.html" class="text-xs bg-slate-900 border border-slate-800 hover:bg-slate-800 text-slate-200 px-4 py-2 rounded-xl transition font-medium">← Back to Dashboard</a>
+<a href="index.html" class="text-xs bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-xl transition font-medium">Home</a>
+</div>
+</div>
+</header>
+
+<main class="flex-grow max-w-3xl w-full mx-auto px-6 py-12 space-y-8">
+<div class="text-center space-y-3">
+<h1 class="text-3xl font-black tracking-tight text-white">Track Your Shipment</h1>
+<p class="text-xs text-slate-400">Enter your PHL Express tracking number below for real-time status updates.</p>
+</div>
+
+<div class="bg-navy-900 border border-slate-800 p-6 rounded-3xl shadow-xl space-y-4">
+<div class="flex gap-3">
+<input type="text" id="trackInput" placeholder="e.g. PHL-482910" class="flex-grow bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-white uppercase text-xs focus:outline-none focus:border-blue-600 font-mono font-bold">
+<button onclick="trackPackage()" class="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-6 py-3 rounded-xl transition shadow-lg shadow-blue-600/30 text-xs">Track</button>
+</div>
+</div>
+
+<!-- RESULTS BOX -->
+<div id="resultContainer" class="hidden bg-navy-900 border border-slate-800 p-8 rounded-3xl shadow-xl space-y-6 text-white">
+<div class="flex justify-between items-center border-b border-slate-800 pb-4">
+<div>
+<p class="text-xs text-slate-500 font-medium">Tracking Number</p>
+<p id="resTracking" class="font-mono text-blue-400 font-bold text-sm">--</p>
+</div>
+<div>
+<p class="text-xs text-slate-500 font-medium">Current Status</p>
+<span id="resStatus" class="inline-block mt-1 bg-blue-600/10 border border-blue-600/20 text-blue-400 px-3 py-1 rounded-lg font-semibold text-xs">--</span>
+</div>
+</div>
+
+<div class="grid grid-cols-2 gap-4 text-xs">
+<div>
+<p class="text-slate-500 font-medium">Recipient</p>
+<p id="resRecipient" class="font-semibold text-white mt-0.5">--</p>
+</div>
+<div>
+<p class="text-slate-500 font-medium">Destination</p>
+<p id="resDestination" class="font-semibold text-white mt-0.5">--</p>
+</div>
+</div>
+
+<div class="space-y-4 pt-4 border-t border-slate-800">
+<h3 class="text-sm font-black tracking-tight text-white">Package History & Timeline</h3>
+<div id="resTimeline" class="space-y-4">
+<!-- Timeline items injected here -->
+</div>
+</div>
+
+<!-- BOTTOM RETURN BUTTON -->
+<div class="pt-4 border-t border-slate-800 flex justify-between items-center">
+<a href="dashboard.html" class="text-xs text-blue-400 hover:underline font-medium">&larr; Return to Client Dashboard</a>
+<a href="index.html" class="text-xs text-slate-400 hover:text-white font-medium">Back to Home Page</a>
+</div>
+</div>
+</main>
+
+<footer class="bg-navy-950 text-slate-500 py-6 text-center text-xs border-t border-slate-900">
+&copy; 2026 PHL Express. All rights reserved.
+</footer>
+
+<script>
+const firebaseConfig = {
+apiKey: "AIzaSyBdqx9c9otXv5Si1MMrwnPxDoVkJWdYSd4",
+authDomain: "phl-express.firebaseapp.com",
+databaseURL: "https://phl-express-default-rtdb.firebaseio.com",
+projectId: "phl-express",
+storageBucket: "phl-express.firebasestorage.app",
+messagingSenderId: "561028625183",
+appId: "1:561028625183:web:ceb8ba2452a79ecdffb62a",
+measurementId: "G-838P851DXJ"
+};
+firebase.initializeApp(firebaseConfig);
+const db = firebase.database();
+
+function trackPackage() {
+const code = document.getElementById("trackInput").value.trim().toUpperCase();
+if (!code) {
+alert("Please enter a tracking number.");
 return;
 }
 
-// Display package details on your tracking UI
-document.getElementById("status-display").innerText = data.currentStatus;
-document.getElementById("destination-display").innerText = data.destination;
+db.ref("shipments/" + code).once("value")
+.then((snapshot) => {
+const data = snapshot.val();
+const container = document.getElementById("resultContainer");
 
-// Render package history timeline
-const historyList = document.getElementById("history-timeline");
-historyList.innerHTML = "";
+if (!data) {
+alert("Tracking number not found. Please verify the code.");
+container.classList.add("hidden");
+return;
+}
+
+container.classList.remove("hidden");
+document.getElementById("resTracking").innerText = data.trackingNumber;
+document.getElementById("resStatus").innerText = data.currentStatus;
+document.getElementById("resRecipient").innerText = data.recipient;
+document.getElementById("resDestination").innerText = data.destination;
+
+const timeline = document.getElementById("resTimeline");
+timeline.innerHTML = "";
+
+if (data.history && Array.isArray(data.history)) {
 data.history.forEach((h) => {
-historyList.innerHTML += `
-<div class="border-l-2 border-blue-600 pl-4 py-2">
-<p class="text-sm font-bold text-white">${h.status}</p>
-<p class="text-xs text-slate-400">${h.location} - ${h.timestamp}</p>
+timeline.innerHTML += `
+<div class="border-l-2 border-blue-600 pl-4 py-1 space-y-1">
+<p class="text-xs font-bold text-white">${h.status}</p>
+<p class="text-[11px] text-slate-400">${h.location} &bull; ${h.timestamp}</p>
 </div>
 `;
 });
+}
+})
+.catch((err) => {
+console.error("Tracking error:", err);
+alert("Error fetching tracking data.");
 });
 }
+</script>
+</body>
+</html>
