@@ -3,115 +3,160 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Admin Dashboard | Enterprise Logistics Portal</title>
-<script src="https://cdn.tailwindcss.com"></script>
+<title>Shipment Control Center | PHL Express Admin</title>
 <link rel="icon" type="image/png" href="logo.png">
+<script src="https://cdn.tailwindcss.com"></script>
 
 <!-- Firebase SDKs -->
 <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
 
 <!-- EmailJS SDK -->
 <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
 <script type="text/javascript">
 emailjs.init("fpa1DA0DLYaRkVd0o");
 </script>
+
+<script>
+tailwind.config = {
+theme: {
+extend: {
+colors: {
+navy: { 900: '#0F172A', 950: '#090D16' },
+blue: { 600: '#2563EB', 700: '#1D4ED8' }
+}
+}
+}
+}
+</script>
 </head>
-<body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col font-sans selection:bg-amber-500 selection:text-slate-950">
+<body class="bg-slate-950 font-sans text-slate-300 antialiased min-h-screen flex flex-col justify-between selection:bg-amber-500 selection:text-slate-950">
 
 <!-- Header -->
-<header class="bg-slate-900/80 backdrop-blur-md border-b border-slate-800 px-8 py-4 flex justify-between items-center sticky top-0 z-40">
+<header class="bg-navy-950 border-b border-slate-800 sticky top-0 z-40 backdrop-blur-md bg-opacity-90">
+<div class="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
+<div class="flex items-center space-x-6">
 <div class="flex items-center space-x-3">
-<div class="w-3 h-3 bg-amber-500 rounded-full animate-pulse"></div>
-<h1 id="brand-title" class="text-lg font-bold tracking-tight text-white">PHL Express <span class="text-amber-500 font-normal">Admin</span></h1>
+<img src="logo.png" alt="Logo" class="h-10 w-10 rounded-xl object-cover shadow-lg shadow-blue-600/30">
+<div class="flex flex-col">
+<span class="font-black tracking-tight text-lg text-white">PHL EXPRESS</span>
+<span class="text-[10px] tracking-widest text-amber-400 uppercase font-semibold">Admin Operations</span>
+</div>
+</div>
+<nav class="hidden md:flex space-x-6 text-xs font-medium text-slate-300 pl-4 border-l border-slate-800">
+<a href="index.html" class="hover:text-white transition">Home</a>
+<a href="track.html" class="hover:text-white transition">Track Package</a>
+<a href="dashboard.html" class="hover:text-white transition">Booking Portal</a>
+</nav>
 </div>
 <div class="flex items-center space-x-4">
-<span class="text-xs text-slate-400 hidden sm:inline">System Status: <span class="text-emerald-400 font-medium">Online</span></span>
-<a href="dashboard.html" class="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-lg text-xs font-medium transition">Create Shipment</a>
+<span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+<span class="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse"></span> System Online
+</span>
+<a href="dashboard.html" class="text-xs bg-blue-600 hover:bg-blue-500 text-white font-bold px-4 py-2.5 rounded-xl transition shadow-lg shadow-blue-600/30 uppercase tracking-wider">
++ Create Shipment
+</a>
+</div>
 </div>
 </header>
 
 <!-- Main Content -->
 <main class="flex-grow max-w-7xl w-full mx-auto px-6 py-10 space-y-8">
 
-<!-- Page Title & Quick Stats Bar -->
-<div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-<div class="space-y-1">
-<h2 class="text-2xl font-bold tracking-tight text-white">Shipment Control Center</h2>
-<p class="text-xs text-slate-400">Monitor active client deliveries, modify transit milestones, and trigger automated alerts.</p>
+<!-- Control Header & Search -->
+<div class="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-navy-900 border border-slate-800 p-6 rounded-3xl shadow-xl">
+<div>
+<h1 class="text-xl font-black tracking-tight text-white">Shipment Control Center</h1>
+<p class="text-xs text-slate-400 mt-0.5">Manage active client deliveries, update transit milestones, and trigger automated alerts.</p>
 </div>
-
-<!-- Search Filter Bar -->
 <div class="w-full md:w-72">
-<input type="text" id="tableSearch" placeholder="Search tracking or recipient..." onkeyup="filterTable()" class="w-full bg-slate-900 border border-slate-800 rounded-xl px-4 py-2.5 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-amber-500 transition">
+<input type="text" id="searchInput" onkeyup="filterShipments()" placeholder="Search tracking or client..." class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-xs text-white focus:outline-none focus:border-blue-600 transition">
 </div>
 </div>
 
-<!-- Shipments Table Card -->
-<div class="bg-slate-900/90 border border-slate-800/80 rounded-2xl shadow-2xl overflow-hidden backdrop-blur-sm">
-<div class="px-6 py-5 border-b border-slate-800 flex justify-between items-center">
-<h3 class="text-sm font-bold tracking-tight text-white uppercase tracking-wider">Active Database Records</h3>
-<span id="record-count" class="text-xs text-slate-400 bg-slate-950 px-3 py-1 rounded-full border border-slate-800">Loading records...</span>
+<!-- Shipments Table -->
+<div class="bg-navy-900 border border-slate-800 rounded-3xl shadow-xl overflow-hidden">
+<div class="p-6 border-b border-slate-800 flex justify-between items-center">
+<h2 class="text-sm font-black uppercase tracking-wider text-white">Active Database Records</h2>
+<span id="recordCount" class="text-xs text-slate-400 font-medium">Loading records...</span>
 </div>
-
 <div class="overflow-x-auto">
 <table class="w-full text-left text-xs text-slate-300">
-<thead class="bg-slate-950/70 text-slate-400 uppercase tracking-wider border-b border-slate-800">
+<thead class="bg-slate-950 text-slate-400 uppercase tracking-wider border-b border-slate-800">
 <tr>
-<th class="p-4 font-semibold">Tracking Number</th>
-<th class="p-4 font-semibold">Client Email</th>
-<th class="p-4 font-semibold">Recipient</th>
-<th class="p-4 font-semibold">Destination</th>
-<th class="p-4 font-semibold">Current Status</th>
-<th class="p-4 text-right font-semibold">Actions</th>
+<th class="p-4">Tracking Number</th>
+<th class="p-4">Client Email</th>
+<th class="p-4">Recipient</th>
+<th class="p-4">Destination</th>
+<th class="p-4">Current Status</th>
+<th class="p-4 text-right">Actions</th>
 </tr>
 </thead>
-<tbody id="admin-shipment-list" class="divide-y divide-slate-800/60">
-<!-- Populated dynamically via JS -->
+<tbody id="admin-shipment-list" class="divide-y divide-slate-800">
+<tr>
+<td colspan="6" class="p-8 text-center text-slate-500">Connecting to secure database...</td>
+</tr>
 </tbody>
 </table>
 </div>
 </div>
 </main>
 
-<!-- Update Modal -->
-<div id="updateModal" class="hidden fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4 z-50 transition-all">
-<div class="bg-slate-900 border border-slate-800 p-6 rounded-2xl max-w-md w-full space-y-5 shadow-2xl transform transition-all">
-<div class="flex justify-between items-center border-b border-slate-800 pb-3">
-<h3 class="text-base font-bold text-white">Update Shipment Milestone</h3>
-<button onclick="closeModal()" class="text-slate-400 hover:text-white">&times;</button>
-</div>
-
-<form id="updateForm" onsubmit="submitStatusUpdate(event)" class="space-y-4">
-<input type="hidden" id="modalTracking">
-<input type="hidden" id="modalEmail">
-<input type="hidden" id="modalRecipient">
-
+<!-- UPDATE MODAL -->
+<div id="updateModal" class="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm hidden flex items-center justify-center p-4">
+<div class="bg-navy-900 border border-slate-800 w-full max-w-lg rounded-3xl p-6 shadow-2xl space-y-6">
+<div class="flex justify-between items-center border-b border-slate-800 pb-4">
 <div>
-<label class="block text-xs font-medium text-slate-400 mb-1.5">New Status Title</label>
-<input type="text" id="modalNewStatus" placeholder="e.g. Out for Delivery" required class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-xs text-white focus:outline-none focus:border-amber-500 transition">
+<h3 class="text-sm font-black uppercase tracking-wider text-white">Update Shipment & History</h3>
+<p id="modalTrackingLabel" class="text-xs text-amber-400 font-mono font-bold mt-0.5"></p>
+</div>
+<button onclick="closeUpdateModal()" class="text-slate-400 hover:text-white text-lg font-bold px-2">&times;</button>
 </div>
 
-<div>
-<label class="block text-xs font-medium text-slate-400 mb-1.5">Current Location / Note</label>
-<input type="text" id="modalLocation" placeholder="e.g. Sorting Hub - London, UK" required class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-xs text-white focus:outline-none focus:border-amber-500 transition">
+<form onsubmit="saveShipmentUpdate(event)" class="space-y-4 text-xs">
+<input type="hidden" id="editTrackingNumber">
+<input type="hidden" id="editClientEmail">
+<input type="hidden" id="editClientName">
+
+<div class="space-y-1">
+<label class="text-slate-300 font-medium">Overall Package Status</label>
+<select id="editStatus" required class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-blue-600 transition">
+<option value="Shipment Booked">Shipment Booked</option>
+<option value="Picked Up">Picked Up</option>
+<option value="In Transit">In Transit</option>
+<option value="Customs Clearance">Customs Clearance</option>
+<option value="Out for Delivery">Out for Delivery</option>
+<option value="Successfully Delivered">Successfully Delivered</option>
+</select>
 </div>
 
-<div class="flex justify-end space-x-3 pt-3">
-<button type="button" onclick="closeModal()" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-xs rounded-xl text-slate-300 font-medium transition">Cancel</button>
-<button type="submit" id="modal-btn" class="px-5 py-2 bg-amber-500 hover:bg-amber-400 text-slate-950 text-xs rounded-xl font-bold transition shadow-lg shadow-amber-500/20">Update & Email Client</button>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+<div class="space-y-1">
+<label class="text-slate-300 font-medium">New Milestone Location</label>
+<input type="text" id="milestoneLocation" required placeholder="e.g. Heathrow Hub, London" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-blue-600 transition">
+</div>
+<div class="space-y-1">
+<label class="text-slate-300 font-medium">Milestone Status Description</label>
+<input type="text" id="milestoneNote" required placeholder="e.g. Arrived at sorting facility" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-blue-600 transition">
+</div>
+</div>
+
+<div class="flex items-center space-x-3 pt-2">
+<button type="submit" id="saveUpdateBtn" class="flex-1 bg-blue-600 hover:bg-blue-500 text-white font-bold py-3.5 rounded-xl transition shadow-lg shadow-blue-600/30 uppercase tracking-wider">
+Save & Notify Client
+</button>
+<button type="button" onclick="closeUpdateModal()" class="bg-slate-800 hover:bg-slate-700 text-slate-300 px-5 py-3.5 rounded-xl font-medium transition">
+Cancel
+</button>
 </div>
 </form>
 </div>
 </div>
 
-<!-- Footer -->
-<footer class="bg-slate-950 text-slate-500 py-6 text-center text-xs border-t border-slate-800">
+<footer class="bg-navy-950 text-slate-500 py-6 text-center text-xs border-t border-slate-900">
 &copy; 2026 Enterprise Logistics Solutions. All rights reserved.
 </footer>
 
-<!-- Firebase & App Scripts -->
 <script>
 const firebaseConfig = {
 apiKey: "AIzaSyBdqx9c9otXv5i1MMrwnPxDoVkJwDySd4",
@@ -131,139 +176,159 @@ let allShipmentsData = {};
 // Load all shipments in real-time
 db.ref("shipments").on("value", (snapshot) => {
 const table = document.getElementById("admin-shipment-list");
-const countBadge = document.getElementById("record-count");
 table.innerHTML = "";
 
 if (!snapshot.exists()) {
-table.innerHTML = `<tr><td colspan="6" class="p-8 text-center text-slate-500">No active shipments registered in the database.</td></tr>`;
-countBadge.innerText = "0 Records";
+table.innerHTML = `<tr><td colspan="6" class="p-8 text-center text-slate-500">No active shipments in database.</td></tr>`;
+document.getElementById("recordCount").innerText = "0 Records";
 return;
 }
 
 allShipmentsData = snapshot.val();
+renderTable(allShipmentsData);
+});
+
+function renderTable(dataObj) {
+const table = document.getElementById("admin-shipment-list");
+table.innerHTML = "";
 let count = 0;
 
-snapshot.forEach((childSnapshot) => {
+Object.keys(dataObj).forEach((trackingNum) => {
+const s = dataObj[trackingNum];
 count++;
-const trackingNumber = childSnapshot.key;
-const data = childSnapshot.val();
-const status = data.currentStatus || 'Created';
 
-// Assign status badge color dynamically
-let badgeColor = "bg-sky-500/10 text-sky-400 border-sky-500/20";
-const statusLower = status.toLowerCase();
+let badgeColor = "bg-blue-600/10 text-blue-400 border-blue-600/20";
+const statusLower = (s.currentStatus || '').toLowerCase();
 if (statusLower.includes('transit')) {
 badgeColor = "bg-amber-500/10 text-amber-400 border-amber-500/20";
 } else if (statusLower.includes('delivered')) {
 badgeColor = "bg-emerald-500/10 text-emerald-400 border-emerald-500/20";
 }
 
-const tr = document.createElement("tr");
-tr.className = "hover:bg-slate-800/40 transition";
-tr.innerHTML = `
-<td class="p-4 font-mono font-semibold text-amber-400">${trackingNumber}</td>
-<td class="p-4 text-slate-300">${data.clientEmail || 'N/A'}</td>
-<td class="p-4 text-slate-200 font-medium">${data.recipient || 'N/A'}</td>
-<td class="p-4 text-slate-300">${data.destination || 'N/A'}</td>
-<td class="p-4"><span class="px-2.5 py-1 rounded-md text-[10px] font-semibold border ${badgeColor}">${status}</span></td>
+table.innerHTML += `
+<tr class="hover:bg-slate-950/50 transition">
+<td class="p-4 font-mono font-bold text-amber-400">${s.trackingNumber}</td>
+<td class="p-4 text-slate-300">${s.clientEmail || 'N/A'}</td>
+<td class="p-4 text-white font-medium">${s.recipient}</td>
+<td class="p-4 text-slate-300">${s.destination}</td>
+<td class="p-4"><span class="inline-block border px-2.5 py-1 rounded-lg font-semibold text-[10px] ${badgeColor}">${s.currentStatus || 'Booked'}</span></td>
 <td class="p-4 text-right space-x-2">
-<button onclick="openModal('${trackingNumber}', '${data.clientEmail || ''}', '${data.recipient || ''}')" class="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-white rounded-lg text-xs font-medium transition">Update</button>
-<button onclick="deleteShipment('${trackingNumber}')" class="px-2.5 py-1.5 bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 rounded-lg text-xs font-medium transition">Delete</button>
+<button onclick="openUpdateModal('${s.trackingNumber}')" class="bg-blue-600/10 border border-blue-600/20 text-blue-400 hover:bg-blue-600 hover:text-white px-3 py-1.5 rounded-lg transition font-medium">Update</button>
+<button onclick="deleteShipment('${s.trackingNumber}')" class="bg-rose-500/10 border border-rose-500/20 text-rose-400 hover:bg-rose-500 hover:text-white px-3 py-1.5 rounded-lg transition font-medium">Delete</button>
 </td>
+</tr>
 `;
-table.appendChild(tr);
 });
 
-countBadge.innerText = `${count} Record${count === 1 ? '' : 's'}`;
+document.getElementById("recordCount").innerText = `${count} Record${count === 1 ? '' : 's'}`;
+}
+
+function filterShipments() {
+const query = document.getElementById("searchInput").value.toLowerCase();
+const filtered = {};
+
+Object.keys(allShipmentsData).forEach((key) => {
+const s = allShipmentsData[key];
+if (
+s.trackingNumber.toLowerCase().includes(query) ||
+(s.clientEmail && s.clientEmail.toLowerCase().includes(query)) ||
+s.recipient.toLowerCase().includes(query) ||
+s.destination.toLowerCase().includes(query)
+) {
+filtered[key] = s;
+}
 });
 
-// Search Filter Logic
-function filterTable() {
-let query = document.getElementById("tableSearch").value.toLowerCase();
-let rows = document.getElementById("admin-shipment-list").getElementsByTagName("tr");
-
-for (let i = 0; i < rows.length; i++) {
-let rowText = rows[i].innerText.toLowerCase();
-if (rowText.includes(query) || query === "") {
-rows[i].style.display = "";
-} else {
-rows[i].style.display = "none";
-}
-}
+renderTable(filtered);
 }
 
-function openModal(trackingNumber, email, recipient) {
-document.getElementById("modalTracking").value = trackingNumber;
-document.getElementById("modalEmail").value = email;
-document.getElementById("modalRecipient").value = recipient;
+function openUpdateModal(trackingNumber) {
+const s = allShipmentsData[trackingNumber];
+if (!s) return;
+
+document.getElementById("editTrackingNumber").value = s.trackingNumber;
+document.getElementById("editClientEmail").value = s.clientEmail || "";
+document.getElementById("editClientName").value = s.clientName || "Valued Client";
+document.getElementById("modalTrackingLabel").innerText = `Tracking ID: ${s.trackingNumber}`;
+document.getElementById("editStatus").value = s.currentStatus || "In Transit";
+document.getElementById("milestoneLocation").value = "";
+document.getElementById("milestoneNote").value = "";
+
 document.getElementById("updateModal").classList.remove("hidden");
 }
 
-function closeModal() {
+function closeUpdateModal() {
 document.getElementById("updateModal").classList.add("hidden");
 }
 
-function deleteShipment(trackingNumber) {
-if (confirm(`Are you sure you want to delete shipment ${trackingNumber}? This action cannot be undone.`)) {
-db.ref("shipments/" + trackingNumber).remove()
-.then(() => alert("Shipment successfully deleted."))
-.catch((err) => alert("Error deleting shipment: " + err.message));
-}
-}
-
-function submitStatusUpdate(e) {
+function saveShipmentUpdate(e) {
 e.preventDefault();
-const trackingNumber = document.getElementById("modalTracking").value;
-const clientEmail = document.getElementById("modalEmail").value;
-const recipient = document.getElementById("modalRecipient").value;
-const newStatus = document.getElementById("modalNewStatus").value;
-const location = document.getElementById("modalLocation").value;
-const btn = document.getElementById("modal-btn");
 
-btn.innerText = "Syncing & Notifying...";
+const trackingNumber = document.getElementById("editTrackingNumber").value;
+const clientEmail = document.getElementById("editClientEmail").value;
+const clientName = document.getElementById("editClientName").value;
+const newStatus = document.getElementById("editStatus").value;
+const location = document.getElementById("milestoneLocation").value.trim();
+const note = document.getElementById("milestoneNote").value.trim();
+
+const btn = document.getElementById("saveUpdateBtn");
+btn.innerText = "Updating & notifying client...";
 btn.disabled = true;
 
-const dbRef = db.ref("shipments/" + trackingNumber);
+const shipmentRef = db.ref("shipments/" + trackingNumber);
 
-dbRef.once("value").then((snapshot) => {
-const shipment = snapshot.val();
-const newEntry = {
-status: newStatus,
+shipmentRef.once("value").then((snapshot) => {
+const currentData = snapshot.val();
+let historyArray = currentData.history || [];
+
+// Append new history milestone
+historyArray.push({
+status: note,
 location: location,
 timestamp: new Date().toLocaleString()
-};
+});
 
-const updatedHistory = shipment.history ? [...shipment.history, newEntry] : [newEntry];
-
-return dbRef.update({
+shipmentRef.update({
 currentStatus: newStatus,
-history: updatedHistory
-});
-})
-.then(() => {
+history: historyArray
+}).then(() => {
+// Send EmailJS notification if client email exists
 if (clientEmail) {
-const updateParams = {
-to_name: clientEmail.split('@')[0] || (recipient || "Valued Client"),
+const updateMessage = `Hello ${clientName},\n\nYour shipment (${trackingNumber}) status has been updated.\n\nCurrent Status: ${newStatus}\nLatest Milestone: ${note} at ${location}.\n\nYou can track full progress on our website anytime.`;
+
+emailjs.send("service_q2z18lj", "template_r8be1pc", {
+to_name: clientName,
 to_email: clientEmail,
-subject_title: `Shipment Status Update (#${trackingNumber})`,
-message: `Your shipment status has been updated.\n\nCurrent Status: ${newStatus}\nLocation/Details: ${location}`
-};
-return emailjs.send("service_q2z18lj", "template_r8be1pc", updateParams, "ovl2Qx-zRePZDamA9");
+subject_title: `Shipment Update (#${trackingNumber})`,
+message: updateMessage
+}).catch(err => {
+console.warn("Email warning:", err);
+});
 }
-})
-.then(() => {
-alert("Shipment status updated and client notification dispatched!");
-closeModal();
-document.getElementById("updateForm").reset();
-btn.innerText = "Update & Email Client";
-btn.disabled = false;
-})
-.catch((error) => {
-console.error("Error updating status:", error);
-alert("Operation failed: " + error.message);
-btn.innerText = "Update & Email Client";
+
+alert("Shipment status and history updated successfully!");
+closeUpdateModal();
+btn.innerText = "Save & Notify Client";
 btn.disabled = false;
 });
+}).catch((err) => {
+console.error("Error updating:", err);
+alert("Failed to update shipment. Please try again.");
+btn.innerText = "Save & Notify Client";
+btn.disabled = false;
+});
+}
+
+function deleteShipment(trackingNumber) {
+if (confirm(`Are you sure you want to permanently delete tracking record ${trackingNumber}?`)) {
+db.ref("shipments/" + trackingNumber).remove()
+.then(() => {
+alert("Record deleted successfully.");
+})
+.catch((err) => {
+alert("Error deleting record: " + err.message);
+});
+}
 }
 </script>
 </body>
