@@ -1,13 +1,12 @@
 # PHL Express - Enterprise Logistics & Courier Web Application
 
-PHL Express is a modern, white-label logistics and shipment tracking web application built for courier companies, freight forwarders, and delivery startups. It features real-time database synchronization, automated email dispatch notifications, user authentication, client booking portals, and a full administrative control panel.
+PHL Express is a modern, white-label logistics and shipment tracking web application built for courier companies, freight forwarders, and delivery startups. It features real-time database synchronization, automated email dispatch notifications,
 
 ---
 
 ## 🚀 Key Features
 
 * **Customer Tracking Portal (`index.html`):** Allows end-users to instantly check package status, view shipment details, and track multi-step milestone history.
-* **Client Dashboard (`dashboard.html`):** Verified clients can log in, view their profile, book new shipments, auto-generate unique tracking numbers, and review their full delivery history.
 * **Admin Control Center (`admin.html`):** Enterprise-grade management panel enabling logistics managers to view all database records, update statuses, add milestone notes, and delete orders.
 * **Real-Time Database:** Powered by Firebase Realtime Database for instant synchronization across client portals and admin dashboards.
 * **Automated Email Notifications:** Integrated with EmailJS to instantly dispatch confirmation emails and status update alerts directly to clients.
@@ -30,9 +29,8 @@ PHL Express is a modern, white-label logistics and shipment tracking web applica
 phl-express/
 ├── index.html # Public shipment lookup and landing page
 ├── track.html # Dedicated tracking results view
-├── login.html # User authentication entry portal
-├── signup.html # New client account registration
-├── dashboard.html # Client booking and history portal
+├── login.html # admin authentication entry portal
+├── dashboard.html # Client tracking and history portal
 ├── admin.html # Administrative management console
 ├── services.html # Company service offerings
 ├── contact.html # Customer support inquiry page
