@@ -153,28 +153,43 @@ Tracking number not found in our database. Please verify your tracking ID and tr
 </div>
 </div>
 
-<!-- Features / Services Section -->
-<section id="services" class="max-w-7xl mx-auto px-6 py-16">
-<div class="text-center space-y-3 mb-12">
-<h2 class="text-2xl sm:text-3xl font-extrabold text-navy-900 tracking-tight">Why Choose PHL Express?</h2>
-<p class="text-sm text-slate-500 max-w-lg mx-auto">We provide comprehensive supply chain solutions tailored for speed, security, and global reach.</p>
+<!-- Features / Services Section with Looping Video Background -->
+<section id="services" class="relative py-20 px-6 overflow-hidden">
+<!-- Background Video with Auto-Loop -->
+<video autoplay muted loop playsinline class="absolute inset-0 w-full h-full object-cover z-0">
+<source src="animation (2).mp4" type="video/mp4">
+Your browser does not support the video tag.
+</video>
+
+<!-- Dark Overlay for Readability -->
+<div class="absolute inset-0 bg-navy-950/85 backdrop-blur-[2px] z-10"></div>
+
+<!-- Section Content -->
+<div class="relative z-20 max-w-7xl mx-auto space-y-12">
+<div class="text-center space-y-3 max-w-2xl mx-auto">
+<span class="px-3 py-1 rounded-full bg-blue-500/10 border border-blue-500/20 text-blue-400 text-xs font-semibold tracking-wide uppercase">
+Excellence in Motion
+</span>
+<h2 class="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">Why Choose PHL Express?</h2>
+<p class="text-sm text-slate-300 max-w-lg mx-auto">We provide comprehensive supply chain solutions tailored for speed, security, and global reach.</p>
 </div>
 
 <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-<div class="bg-white p-8 rounded-2xl border border-slate-200 shadow-sm space-y-4">
+<div class="bg-white p-8 rounded-2xl border border-slate-200 shadow-xl space-y-4">
 <div class="w-12 h-12 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center font-bold text-xl">✈️</div>
 <h3 class="font-bold text-navy-900 text-lg">Express Air Freight</h3>
 <p class="text-xs text-slate-500 leading-relaxed">Lightning-fast international shipping options designed to get your critical parcels across borders in record time.</p>
 </div>
-<div class="bg-white p-8 rounded-2xl border border-slate-200 shadow-sm space-y-4">
+<div class="bg-white p-8 rounded-2xl border border-slate-200 shadow-xl space-y-4">
 <div class="w-12 h-12 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center font-bold text-xl">🔒</div>
 <h3 class="font-bold text-navy-900 text-lg">Secure Handling</h3>
 <p class="text-xs text-slate-500 leading-relaxed">End-to-end encryption and physical security measures ensuring sensitive or valuable packages are protected.</p>
 </div>
-<div class="bg-white p-8 rounded-2xl border border-slate-200 shadow-sm space-y-4">
+<div class="bg-white p-8 rounded-2xl border border-slate-200 shadow-xl space-y-4">
 <div class="w-12 h-12 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center font-bold text-xl">📍</div>
 <h3 class="font-bold text-navy-900 text-lg">Real-Time Milestone Tracking</h3>
 <p class="text-xs text-slate-500 leading-relaxed">Monitor every single scan event, location change, and customs update live through our customer tracking portal.</p>
+</div>
 </div>
 </div>
 </section>
