@@ -11,6 +11,16 @@
 <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
 
+<!-- EmailJS SDK -->
+<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+<script type="text/javascript">
+(function(){
+emailjs.init({
+publicKey: "5F81VIz6Mn3MIXOYr",
+});
+})();
+</script>
+
 <script>
 tailwind.config = {
 theme: {
@@ -111,7 +121,7 @@ Manage & Update History
 <div class="flex justify-between items-center">
 <div>
 <h1 class="text-2xl font-black text-navy-900 tracking-tight">Create New Shipment</h1>
-<p class="text-xs text-slate-500">Generate waybills and register recipient contact details for notifications.</p>
+<p class="text-xs text-slate-500">Generate waybills and register recipient contact details for automated email notifications.</p>
 </div>
 <button onclick="generateTrackingNumber()" class="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-5 py-2.5 rounded-xl text-xs transition shadow-md shadow-blue-600/30">
 Refresh ID
@@ -135,14 +145,14 @@ Refresh ID
 </div>
 </div>
 
-<!-- Contact Information for Notifications -->
+<!-- Contact Information for Automated Email -->
 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2 border-t border-slate-100">
 <div class="space-y-1">
-<label class="text-xs font-semibold text-slate-700">Recipient Email (for Email Alerts)</label>
+<label class="text-xs font-semibold text-slate-700">Recipient Email (for Automated Alerts)</label>
 <input type="email" id="recipientEmail" required placeholder="client@example.com" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-xs focus:outline-none focus:border-blue-600">
 </div>
 <div class="space-y-1">
-<label class="text-xs font-semibold text-slate-700">Recipient Phone Number (for SMS Alerts)</label>
+<label class="text-xs font-semibold text-slate-700">Recipient Phone Number</label>
 <input type="text" id="recipientPhone" required placeholder="+1234567890" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-xs focus:outline-none focus:border-blue-600">
 </div>
 </div>
@@ -177,7 +187,7 @@ Refresh ID
 <button type="submit" id="submit-btn" class="bg-navy-900 hover:bg-navy-950 text-white font-semibold px-8 py-3 rounded-xl text-xs transition shadow-md">
 Publish New Shipment
 </button>
-<span id="save-success" class="text-emerald-600 text-xs font-semibold ml-3 hidden">✓ Shipment successfully created & contact info saved!</span>
+<span id="save-success" class="text-emerald-600 text-xs font-semibold ml-3 hidden">✓ Shipment successfully created & saved!</span>
 </div>
 </form>
 </div>
@@ -186,8 +196,8 @@ Publish New Shipment
 <!-- TAB 2: MANAGE & UPDATE HISTORY -->
 <div id="view-manage" class="hidden space-y-6">
 <div>
-<h1 class="text-2xl font-black text-navy-900 tracking-tight">Manage Shipments & Notifications</h1>
-<p class="text-xs text-slate-500">View active waybills, update history, and instantly notify clients via email or phone.</p>
+<h1 class="text-2xl font-black text-navy-900 tracking-tight">Manage Shipments & Automated Alerts</h1>
+<p class="text-xs text-slate-500">View active waybills and update package history. Email notifications are dispatched automatically.</p>
 </div>
 
 <div class="bg-white rounded-2xl border border-slate-200 shadow-xl overflow-hidden p-6 space-y-4">
@@ -218,7 +228,7 @@ Publish New Shipment
 <div class="bg-white max-w-lg w-full p-8 rounded-2xl shadow-2xl border border-slate-200 space-y-6">
 <div class="flex justify-between items-center border-b pb-4">
 <div>
-<h3 class="font-black text-navy-900 text-base">Update History & Notify Client</h3>
+<h3 class="font-black text-navy-900 text-base">Update History & Auto-Email Client</h3>
 <p id="modal-tracking-id" class="text-xs font-mono text-blue-600 font-bold"></p>
 </div>
 <button onclick="closeHistoryModal()" class="text-slate-400 hover:text-slate-600 font-bold text-lg">✕</button>
@@ -249,15 +259,14 @@ Publish New Shipment
 <textarea id="update-details" rows="3" required placeholder="Package cleared customs and loaded onto local distribution truck." class="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 text-xs focus:outline-none focus:border-blue-600"></textarea>
 </div>
 
-<!-- Notification Options Box -->
-<div class="bg-blue-50/60 border border-blue-100 p-4 rounded-xl space-y-2">
-<span class="text-xs font-bold text-blue-900 block">📢 Instant Client Notifications</span>
-<p class="text-[11px] text-slate-600">After appending this checkpoint, you can instantly notify the recipient via their saved phone number and email.</p>
+<div class="bg-blue-50/60 border border-blue-100 p-4 rounded-xl space-y-1">
+<span class="text-xs font-bold text-blue-900 block">⚡ Automatic Email Notification</span>
+<p class="text-[11px] text-slate-600">Clicking save will instantly dispatch an automated email update to the client's registered email address.</p>
 </div>
 
 <div class="flex justify-end space-x-3 pt-2">
 <button type="button" onclick="closeHistoryModal()" class="px-5 py-2.5 rounded-xl border border-slate-200 text-xs font-semibold text-slate-600 hover:bg-slate-50 transition">Cancel</button>
-<button type="submit" id="modal-submit-btn" class="px-6 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold transition shadow-md">Append Checkpoint & Notify</button>
+<button type="submit" id="modal-submit-btn" class="px-6 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold transition shadow-md">Save & Send Auto-Email</button>
 </div>
 </form>
 </div>
@@ -451,7 +460,7 @@ const newDetails = document.getElementById("update-details").value.trim();
 const now = new Date().toLocaleString();
 
 const btn = document.getElementById("modal-submit-btn");
-btn.innerText = "Saving & Notifying...";
+btn.innerText = "Saving & Sending Auto-Email...";
 btn.disabled = true;
 
 db.ref("shipments/" + trackingNo).once("value").then((snapshot) => {
@@ -467,23 +476,35 @@ timestamp: now
 });
 data.currentStatus = newStatus;
 
+// Save update to Firebase database
 db.ref("shipments/" + trackingNo).set(data).then(() => {
-btn.innerText = "Append Checkpoint & Notify";
+
+// Parameters mapping to your EmailJS Template variables
+const templateParams = {
+to_email: data.recipientEmail,
+to_name: data.recipient,
+tracking_number: trackingNo,
+shipment_status: newStatus,
+location: newLocation,
+details: newDetails,
+destination: data.destination,
+timestamp: now
+};
+
+// Automatically dispatch Email via EmailJS
+emailjs.send('service_q2z18lj', 'template_r8be1pc', templateParams)
+.then((response) => {
+btn.innerText = "Save & Send Auto-Email";
 btn.disabled = false;
 closeHistoryModal();
+alert(`Checkpoint saved and automated email successfully sent to ${data.recipientEmail}!`);
+}, (error) => {
+btn.innerText = "Save & Send Auto-Email";
+btn.disabled = false;
+closeHistoryModal();
+alert(`Checkpoint saved to database, but automated email failed. Error: ${JSON.stringify(error)}`);
+});
 
-// Prompt admin to send Email & SMS notification to client
-const email = data.recipientEmail;
-const phone = data.recipientPhone;
-const msg = `Hello ${data.recipient}, your PHL Express package (${trackingNo}) status has been updated to: ${newStatus} at ${newLocation}. Check details online.`;
-
-if (confirm(`Checkpoint saved successfully!\n\nWould you like to send email notification to ${email}?`)) {
-window.location.href = `mailto:${email}?subject=PHL Express Shipment Update - ${trackingNo}&body=${encodeURIComponent(msg)}`;
-}
-
-if (confirm(`Would you like to send an SMS notification to ${phone}?`)) {
-window.location.href = `sms:${phone}?body=${encodeURIComponent(msg)}`;
-}
 });
 }
 });
