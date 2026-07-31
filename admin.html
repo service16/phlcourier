@@ -11,13 +11,11 @@
 <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
 
-<!-- EmailJS SDK & Object Initialization -->
+<!-- EmailJS SDK -->
 <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
 <script type="text/javascript">
 (function(){
-emailjs.init({
-publicKey: "5F81VIz6Mn3MIXOYr"
-});
+emailjs.init("5F81VIz6Mn3MIXOYr");
 })();
 </script>
 
@@ -491,8 +489,12 @@ destination: data.destination,
 timestamp: now
 };
 
-// Automatically dispatch Email via EmailJS
-emailjs.send('service_q2z18lj', 'template_r8be1pc', templateParams)
+const SERVICE_ID = "service_q2z18lj";
+const TEMPLATE_ID = "template_r8be1pc";
+const PUBLIC_KEY = "5F81VIz6Mn3MIXOYr";
+
+// Automatically dispatch Email via EmailJS with explicit Public Key parameter
+emailjs.send(SERVICE_ID, TEMPLATE_ID, templateParams, PUBLIC_KEY)
 .then((response) => {
 btn.innerText = "Save & Send Auto-Email";
 btn.disabled = false;
