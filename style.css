@@ -524,9 +524,8 @@ display: inline-block;
 /* Make background image show fully on mobile phones */
 @media (max-width: 768px) {
 .hero {
-background-size:100% 100%; 
+background-size: 100% 100% 
 background-repeat: no-repeat;
 background-position: center;
-background-color: #0b0f19; /* Dark background color to fill any top/bottom empty space */
 }
 }
