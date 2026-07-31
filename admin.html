@@ -11,11 +11,13 @@
 <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
 
-<!-- EmailJS SDK & Corrected Initialization -->
+<!-- EmailJS SDK & Object Initialization -->
 <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
 <script type="text/javascript">
 (function(){
-emailjs.init("5F81VIz6Mn3MIXOYr");
+emailjs.init({
+publicKey: "5F81VIz6Mn3MIXOYr"
+});
 })();
 </script>
 
